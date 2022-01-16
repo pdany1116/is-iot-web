@@ -1,4 +1,4 @@
-namespace IsIoTWeb.Models
+﻿namespace IsIoTWeb.Models
 {
     public class ErrorViewModel
     {

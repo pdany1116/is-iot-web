@@ -1,22 +1,22 @@
 ﻿using IsIoTWeb.Models;
+using IsIoTWeb.Repository;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 namespace IsIoTWeb.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private IReadingRepository _readingRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IReadingRepository readingRepository)
         {
-            _logger = logger;
+            _readingRepository = readingRepository;
         }
 
         public IActionResult Index()
         {
-            return View();
+            return View(_readingRepository.GetAll().Result);
         }
 
         public IActionResult Privacy()
