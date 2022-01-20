@@ -21,6 +21,10 @@ namespace IsIoTWeb.Controllers
 
         public IActionResult Privacy()
         {
+            // TODO: remove
+            var obj = _readingRepository.Get("61e4afa83246c59bc696ec2e").Result;
+            obj.AirHummidity = -1;
+            _readingRepository.Update(obj);
             return View();
         }
 

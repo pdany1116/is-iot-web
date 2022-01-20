@@ -1,32 +1,33 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 
 namespace IsIoTWeb.Models
 {
     [BsonIgnoreExtraElements]
-    public class Reading
+    public class Reading : IDocument
     {
         [BsonId]
-        [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string _id { get; set; } = ObjectId.GenerateNewId().ToString();
 
         [BsonElement("collectorId")]
         public int CollectorId { get; set; }
 
         [BsonElement("date")]
-        public string Date { get; set; }
+        public DateTime Date { get; set; }
 
         [BsonElement("soilMoistures")]
-        public List<string> SoilMoistures  { get; set; }
+        public List<double> SoilMoistures  { get; set; }
 
         [BsonElement("airTemp")]
-        public string AirTemp { get; set; }
+        public double AirTemp { get; set; }
 
         [BsonElement("airHummidity")]
-        public string AirHummidity { get; set; }
+        public double AirHummidity { get; set; }
 
         [BsonElement("lightIntensity")]
-        public string LightIntensity { get; set; }
+        public double LightIntensity { get; set; }
     }
 }

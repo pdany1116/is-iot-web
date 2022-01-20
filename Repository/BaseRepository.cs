@@ -1,54 +1,54 @@
 ﻿using IsIoTWeb.Context;
+using IsIoTWeb.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using ServiceStack;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IsIoTWeb.Repository
 {
-    public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class
+    public abstract class BaseRepository<TDocument> : IBaseRepository<TDocument> where TDocument : IDocument
     {
         protected readonly IMongoDbContext _context;
-        protected IMongoCollection<TEntity> _dbSet;
+        protected IMongoCollection<TDocument> _dbSet;
         
         protected BaseRepository(IMongoDbContext context)
         {
             _context = context;
-            // TEntity = Reading => collection named "readings"
-            _dbSet = _context.GetCollection<TEntity>(typeof(TEntity).Name.ToLower() + "s");
+            // TDocument = Reading => collection named "readings"
+            _dbSet = _context.GetCollection<TDocument>(typeof(TDocument).Name.ToLower() + "s");
         }
 
-        public virtual async Task Create(TEntity obj)
+        public virtual async Task Create(TDocument obj)
         {
             if (obj == null)
             {
-                throw new ArgumentNullException(typeof(TEntity).Name + " is null!");
+                throw new ArgumentNullException(typeof(TDocument).Name + " is null!");
             }
             await _dbSet.InsertOneAsync(obj);
         }
 
         public virtual async Task Delete(string id)
         {
-            await _dbSet.DeleteOneAsync(Builders<TEntity>.Filter.Eq("_id", id));
+            await _dbSet.DeleteOneAsync(Builders<TDocument>.Filter.Eq("_id", id));
         }
 
-        public virtual async Task Update(TEntity obj)
+        public virtual async Task Update(TDocument obj)
         {
-            await _dbSet.ReplaceOneAsync(Builders<TEntity>.Filter.Eq("_id", obj.GetId()), obj);
+            await _dbSet.ReplaceOneAsync(Builders<TDocument>.Filter.Eq("_id", obj._id), obj);
         }
 
-        public virtual async Task<TEntity> Get(string id)
+        public virtual async Task<TDocument> Get(string id)
         {
             var objectId = new ObjectId(id);
-            FilterDefinition<TEntity> filter = Builders<TEntity>.Filter.Eq("_id", objectId);
+            FilterDefinition<TDocument> filter = Builders<TDocument>.Filter.Eq("_id", objectId);
             return await _dbSet.FindAsync(filter).Result.FirstOrDefaultAsync();
         }
 
-        public virtual async Task<IEnumerable<TEntity>> GetAll()
+        public virtual async Task<IEnumerable<TDocument>> GetAll()
         {
-            var all = await _dbSet.FindAsync(Builders<TEntity>.Filter.Empty);
+            var all = await _dbSet.FindAsync(Builders<TDocument>.Filter.Empty);
             return await all.ToListAsync();
         }
     }
