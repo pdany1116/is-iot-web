@@ -15,11 +15,11 @@ namespace IsIoTWeb.Models
         [BsonElement("collectorId")]
         public int CollectorId { get; set; }
 
-        [BsonElement("date")]
-        public DateTime Date { get; set; }
+        [BsonElement("timestamp")]
+        public double Timestamp { get; set; }
 
-        [BsonElement("soilMoistures")]
-        public List<double> SoilMoistures  { get; set; }
+        [BsonElement("soilMoisture")]
+        public List<double> SoilMoisture  { get; set; }
 
         [BsonElement("airTemp")]
         public double AirTemp { get; set; }

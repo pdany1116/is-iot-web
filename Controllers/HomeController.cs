@@ -20,7 +20,7 @@ namespace IsIoTWeb.Controllers
 
         public IActionResult Index()
         {
-            return View(_readingRepository.Get("62103f33e05e2b1e724c4bf4").Result);
+            return View(_readingRepository.GetAll().Result);
         }
 
         public async Task<IActionResult> Privacy()
