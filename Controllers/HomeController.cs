@@ -1,30 +1,33 @@
 ﻿using IsIoTWeb.Models;
+using IsIoTWeb.Mqtt;
 using IsIoTWeb.Repository;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace IsIoTWeb.Controllers
 {
     public class HomeController : Controller
     {
         private IReadingRepository _readingRepository;
+        private IMqttClient _mqttClient;
 
-        public HomeController(IReadingRepository readingRepository)
+        public HomeController(IReadingRepository readingRepository, IMqttClient mqttClient)
         {
             _readingRepository = readingRepository;
+            _mqttClient = mqttClient;
         }
 
         public IActionResult Index()
         {
-            return View(_readingRepository.GetAll().Result);
+            return View(_readingRepository.Get("62103f33e05e2b1e724c4bf4").Result);
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Privacy()
         {
-            // TODO: remove
-            var obj = _readingRepository.Get("61e4afa83246c59bc696ec2e").Result;
-            obj.AirHummidity = -1;
-            _readingRepository.Update(obj);
+            await _mqttClient.Connect();
+            await _mqttClient.Publish("/test/dani123/", "hello_vs");
+            await _mqttClient.Disconnect();
             return View();
         }
 

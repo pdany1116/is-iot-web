@@ -1,4 +1,5 @@
 using IsIoTWeb.Context;
+using IsIoTWeb.Mqtt;
 using IsIoTWeb.Repository;
 using IsIoTWeb.Settings;
 using Microsoft.AspNetCore.Builder;
@@ -24,8 +25,11 @@ namespace IsIoTWeb
         {
             services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDbSettings"));
             services.AddSingleton<IMongoDbSettings>(service => service.GetRequiredService<IOptions<MongoDbSettings>>().Value);
+            services.Configure<MqttSettings>(Configuration.GetSection("MqttSettings"));
+            services.AddSingleton<IMqttSettings>(service => service.GetRequiredService<IOptions<MqttSettings>>().Value);
             services.AddScoped<IMongoDbContext, MongoDbContext>();
             services.AddScoped<IReadingRepository, ReadingRepository>();
+            services.AddScoped<IMqttClient, MqttClient>();
             services.AddControllersWithViews();
         }
 
