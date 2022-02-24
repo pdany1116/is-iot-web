@@ -1,12 +1,14 @@
 ﻿using IsIoTWeb.Models;
 using IsIoTWeb.Mqtt;
 using IsIoTWeb.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace IsIoTWeb.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private IReadingRepository _readingRepository;

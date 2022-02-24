@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace IsIoTWeb.Models
 {
@@ -10,13 +10,28 @@ namespace IsIoTWeb.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string _id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("authorities")]
-        public List<string> Authorities { get; set; }
-
+        [Required]
         [BsonElement("username")]
         public string Username { get; set; }
 
+        [Required]
         [BsonElement("password")]
         public string Password { get; set; }
+
+        [Required]
+        [BsonElement("firstName")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [BsonElement("lastName")]
+        public string LastName { get; set; }
+
+        [Required]
+        [BsonElement("email")]
+        public string Email { get; set; }
+
+        [Required]
+        [BsonElement("phone")]
+        public string Phone { get; set; }
     }
 }

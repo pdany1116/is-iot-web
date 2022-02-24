@@ -1,4 +1,5 @@
 using IsIoTWeb.Context;
+using IsIoTWeb.Models;
 using IsIoTWeb.Mqtt;
 using IsIoTWeb.Repository;
 using IsIoTWeb.Settings;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 
 namespace IsIoTWeb
 {
@@ -17,17 +19,24 @@ namespace IsIoTWeb
         {
             Configuration = configuration;
         }
-        
+
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDbSettings"));
+            var mongoDbSettings = Configuration.GetSection("MongoDbSettings");
+
+            services.Configure<MongoDbSettings>(mongoDbSettings);
             services.AddSingleton<IMongoDbSettings>(service => service.GetRequiredService<IOptions<MongoDbSettings>>().Value);
             services.Configure<MqttSettings>(Configuration.GetSection("MqttSettings"));
             services.AddSingleton<IMqttSettings>(service => service.GetRequiredService<IOptions<MqttSettings>>().Value);
             services.AddScoped<IMongoDbContext, MongoDbContext>();
+            services.AddIdentity<ApplicationUser, ApplicationRole>()
+                .AddMongoDbStores<ApplicationUser, ApplicationRole, ObjectId>(
+                    mongoDbSettings["ConnectionString"],
+                    mongoDbSettings["DatabaseName"]
+                );
             services.AddScoped<IReadingRepository, ReadingRepository>();
             services.AddScoped<IMqttClient, MqttClient>();
             services.AddControllersWithViews();
@@ -51,6 +60,8 @@ namespace IsIoTWeb
 
             app.UseRouting();
 
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
