@@ -31,6 +31,9 @@ namespace IsIoTWeb.Controllers
                 {
                     UserName = user.Username,
                     Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    PhoneNumber = user.PhoneNumber
                 };
 
                 IdentityResult result = await userManager.CreateAsync(appUser, user.Password);
@@ -56,11 +59,15 @@ namespace IsIoTWeb.Controllers
             {
                 IdentityResult result = await roleManager.CreateAsync(new ApplicationRole() { Name = name });
                 if (result.Succeeded)
+                {
                     ViewBag.Message = "Role Created Successfully";
+                }
                 else
                 {
                     foreach (IdentityError error in result.Errors)
+                    {
                         ModelState.AddModelError("", error.Description);
+                    }
                 }
             }
             return View();

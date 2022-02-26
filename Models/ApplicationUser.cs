@@ -7,5 +7,7 @@ namespace IsIoTWeb.Models
     [CollectionName("users")]
     public class ApplicationUser : MongoIdentityUser<ObjectId>
     {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     }
 }

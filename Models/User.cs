@@ -4,12 +4,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IsIoTWeb.Models
 {
-    public class User : IDocument
+    public class User
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string _id { get; set; } = ObjectId.GenerateNewId().ToString();
-
         [Required]
         [BsonElement("username")]
         public string Username { get; set; }
@@ -32,6 +28,6 @@ namespace IsIoTWeb.Models
 
         [Required]
         [BsonElement("phone")]
-        public string Phone { get; set; }
+        public string PhoneNumber { get; set; }
     }
 }
