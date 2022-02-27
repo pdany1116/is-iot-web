@@ -32,12 +32,14 @@ namespace IsIoTWeb
             services.Configure<MqttSettings>(Configuration.GetSection("MqttSettings"));
             services.AddSingleton<IMqttSettings>(service => service.GetRequiredService<IOptions<MqttSettings>>().Value);
             services.AddScoped<IMongoDbContext, MongoDbContext>();
-            services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddMongoDbStores<ApplicationUser, ApplicationRole, ObjectId>(
+            services.AddIdentity<User, Role>()
+                .AddMongoDbStores<User, Role, ObjectId>(
                     mongoDbSettings["ConnectionString"],
                     mongoDbSettings["DatabaseName"]
                 );
             services.AddScoped<IReadingRepository, ReadingRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IMqttClient, MqttClient>();
             services.AddControllersWithViews();
         }

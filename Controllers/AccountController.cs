@@ -9,10 +9,10 @@ namespace IsIoTWeb.Controllers
 {
     public class AccountController : Controller
     {
-        private UserManager<ApplicationUser> userManager;
-        private SignInManager<ApplicationUser> signInManager;
+        private UserManager<User> userManager;
+        private SignInManager<User> signInManager;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -31,7 +31,7 @@ namespace IsIoTWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser appUser = await userManager.FindByEmailAsync(email);
+                User appUser = await userManager.FindByEmailAsync(email);
                 if (appUser != null)
                 {
                     Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(appUser, password, false, false);

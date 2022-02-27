@@ -13,11 +13,10 @@ namespace IsIoTWeb.Repository
         protected readonly IMongoDbContext _context;
         protected IMongoCollection<TDocument> _dbSet;
         
-        protected BaseRepository(IMongoDbContext context)
+        protected BaseRepository(IMongoDbContext context, string collectionName)
         {
             _context = context;
-            // TDocument = Reading => collection named "readings"
-            _dbSet = _context.GetCollection<TDocument>(typeof(TDocument).Name.ToLower() + "s");
+            _dbSet = _context.GetCollection<TDocument>(collectionName);
         }
 
         public virtual async Task Create(TDocument obj)
@@ -36,7 +35,7 @@ namespace IsIoTWeb.Repository
 
         public virtual async Task Update(TDocument obj)
         {
-            await _dbSet.ReplaceOneAsync(Builders<TDocument>.Filter.Eq("_id", obj._id), obj);
+            await _dbSet.ReplaceOneAsync(Builders<TDocument>.Filter.Eq("_id", obj.Id), obj);
         }
 
         public virtual async Task<TDocument> Get(string id)

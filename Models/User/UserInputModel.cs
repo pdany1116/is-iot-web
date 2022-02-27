@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IsIoTWeb.Models
 {
-    public class User
+    public class UserInputModel
     {
         [Required]
         [BsonElement("username")]

@@ -6,7 +6,9 @@ namespace IsIoTWeb.Repository
 {
     public class ReadingRepository : BaseRepository<Reading>, IReadingRepository
     {
-        public ReadingRepository(IMongoDbContext context) : base(context)
+        private const string CollectionName = "readings";
+
+        public ReadingRepository(IMongoDbContext context) : base(context, CollectionName)
         {
         }
 

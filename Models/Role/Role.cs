@@ -5,8 +5,8 @@ using MongoDbGenericRepository.Attributes;
 namespace IsIoTWeb.Models
 {
     [CollectionName("roles")]
-    public class ApplicationRole : MongoIdentityRole<ObjectId>
+    public class Role : MongoIdentityRole<ObjectId>, IDocument
     {
-
+        string IDocument.Id { get => base.Id.ToString(); set => base.Id = new ObjectId(value); }
     }
 }

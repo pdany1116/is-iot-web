@@ -10,7 +10,7 @@ namespace IsIoTWeb.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string _id { get; set; } = ObjectId.GenerateNewId().ToString();
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
         [BsonElement("collectorId")]
         public int CollectorId { get; set; }

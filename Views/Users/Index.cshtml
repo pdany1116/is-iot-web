@@ -1,0 +1,15 @@
+﻿@using Microsoft.AspNetCore.Authentication
+ 
+@{
+    ViewData["Title"] = "Users";
+}
+@model IEnumerable<IsIoTWeb.Models.User>
+
+<div class="text-center">
+    <h1 class="display-4">Users</h1>
+    
+    @foreach (var user in Model) {
+        @Html.DisplayFor(u => user.FirstName)
+    }
+    
+</div>
