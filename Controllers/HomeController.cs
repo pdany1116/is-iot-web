@@ -12,12 +12,10 @@ namespace IsIoTWeb.Controllers
     public class HomeController : Controller
     {
         private IReadingRepository _readingRepository;
-        private IMqttClient _mqttClient;
 
-        public HomeController(IReadingRepository readingRepository, IMqttClient mqttClient)
+        public HomeController(IReadingRepository readingRepository)
         {
             _readingRepository = readingRepository;
-            _mqttClient = mqttClient;
         }
 
         public IActionResult Index()
@@ -25,11 +23,8 @@ namespace IsIoTWeb.Controllers
             return View(_readingRepository.GetAll().Result);
         }
 
-        public async Task<IActionResult> Privacy()
+        public IActionResult Privacy()
         {
-            await _mqttClient.Connect();
-            await _mqttClient.Publish("/test/dani123/", "hello_vs");
-            await _mqttClient.Disconnect();
             return View();
         }
     }

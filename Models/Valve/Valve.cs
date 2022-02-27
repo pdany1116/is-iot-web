@@ -19,6 +19,7 @@ namespace IsIoTWeb.Models
         public string Action { get; set; }
 
         [BsonElement("userId")]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string UserId { get; set; }
     }
 }
