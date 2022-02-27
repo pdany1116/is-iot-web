@@ -1,15 +1,63 @@
-﻿@using Microsoft.AspNetCore.Authentication
- 
-@{
-    ViewData["Title"] = "Home Page";
-}
-@model IEnumerable<IsIoTWeb.Models.Reading>
+﻿@model IEnumerable<IsIoTWeb.Models.Reading>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    
-    @foreach (var reading in Model) {
-        @Html.DisplayFor(s => reading.AirHummidity)
-    }
-    
-</div>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1 class="display-4">Welcome</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CollectorId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Timestamp)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AirTemp)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SoilMoisture)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AirHummidity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LightIntensity)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CollectorId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Timestamp)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AirTemp)
+                </td>
+                <td>
+                    @if (item.SoilMoisture != null)
+                    {
+                        @foreach (var moisture in item.SoilMoisture)
+                        {
+                            @moisture 
+                        } 
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AirHummidity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LightIntensity)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
