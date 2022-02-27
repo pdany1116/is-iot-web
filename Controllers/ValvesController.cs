@@ -24,12 +24,23 @@ namespace IsIoTWeb.Controllers
 
         public IActionResult Index()
         {
-            //var result = _valveRepository.GetAll().Result;
-            List<ValveControl> valves = new List<ValveControl>();
+            return RedirectToAction("Logs");
+        }
+
+        public async Task<IActionResult> LogsAsync()
+        {
+            var result = await _valveRepository.GetAll();
+            return View(result);
+        }
+
+        public IActionResult Control()
+        {
+            // TODO: Request from sink valves states
+            List<ValveState> valves = new List<ValveState>();
 
             for (int i = 0; i < ValvesCount; i++)
             {
-                var valve = new ValveControl();
+                var valve = new ValveState();
                 valve.ValveId = i;
                 valve.State = "ON";
                 valves.Add(valve);
@@ -37,13 +48,17 @@ namespace IsIoTWeb.Controllers
             return View(valves);
         }
 
-        public async Task<RedirectToActionResult> Mqtt(ValveControl valve)
+        public IActionResult Configure()
         {
-            Debug.WriteLine($"{valve.ValveId}");
+            return View();
+        }
+
+        public async Task<RedirectToActionResult> Publish(ValveState valve)
+        {
             await _mqttClient.Connect();
             await _mqttClient.Publish("/test/dani123/", $"hello_vs {valve.ValveId}");
             await _mqttClient.Disconnect();
-            return RedirectToAction("Index");
+            return RedirectToAction("Control");
         }
     }
 }

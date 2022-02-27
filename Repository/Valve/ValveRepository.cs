@@ -3,7 +3,7 @@ using IsIoTWeb.Models;
 
 namespace IsIoTWeb.Repository
 {
-    public class ValveRepository : BaseRepository<Valve>, IValveRepository
+    public class ValveRepository : BaseRepository<ValveLog>, IValveRepository
     {
         private const string CollectionName = "valves";
 

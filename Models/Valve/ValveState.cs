@@ -1,6 +1,6 @@
 ﻿namespace IsIoTWeb.Models
 {
-    public class ValveControl
+    public class ValveState
     {
         public int ValveId { get; set; }
 

@@ -1,10 +1,10 @@
-﻿@model IEnumerable<IsIoTWeb.Models.ValveControl>
+﻿@model IEnumerable<IsIoTWeb.Models.ValveState>
 
 @{
-    ViewData["Title"] = "View";
+    ViewData["Title"] = "Control";
 }
 
-<h1 class="display-4">Roles</h1>
+<h1 class="display-4">Valves Control</h1>
 
 <table class="table">
     <thead>
@@ -29,7 +29,7 @@
                     @Html.DisplayFor(modelItem => item.State)
                 </td>
                 <td>
-                    @Html.ActionLink("Mqtt", "Mqtt", item, new {@class="btn btn-info btn-md", style="white-space: normal" })
+                    @Html.ActionLink($"Turn {item.State}", "Publish", item, new {@class="btn btn-info btn-md", style="white-space: normal" })
                 </td>
             </tr>
         }

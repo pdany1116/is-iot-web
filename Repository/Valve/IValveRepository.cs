@@ -2,7 +2,7 @@
 
 namespace IsIoTWeb.Repository
 {
-    public interface IValveRepository : IBaseRepository<Valve>
+    public interface IValveRepository : IBaseRepository<ValveLog>
     {
     }
 }

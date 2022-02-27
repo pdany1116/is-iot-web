@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace IsIoTWeb.Models
 {
-    public class Valve : IDocument
+    public class ValveLog : IDocument
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
