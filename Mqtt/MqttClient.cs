@@ -2,7 +2,6 @@
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Client.Options;
-using MQTTnet.Formatter;
 using System.Threading;
 using System.Threading.Tasks;
 

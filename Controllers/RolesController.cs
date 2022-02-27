@@ -1,9 +1,6 @@
-﻿using IsIoTWeb.Models;
-using IsIoTWeb.Repository;
+﻿using IsIoTWeb.Repository;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
