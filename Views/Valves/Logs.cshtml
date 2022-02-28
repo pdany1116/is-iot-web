@@ -10,13 +10,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.ValveId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Timestamp)
+                Date
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Action)
@@ -31,13 +28,10 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
                     @Html.DisplayFor(modelItem => item.ValveId)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Timestamp)
+                    @item.Date()
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Action)

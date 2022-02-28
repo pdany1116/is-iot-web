@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 
 namespace IsIoTWeb.Models
@@ -28,5 +29,10 @@ namespace IsIoTWeb.Models
 
         [BsonElement("lightIntensity")]
         public double LightIntensity { get; set; }
+
+        public string Date()
+        {
+            return Utils.Utils.TimestampToDatetime(Timestamp);
+        }
     }
 }

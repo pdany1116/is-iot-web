@@ -13,7 +13,7 @@
                 @Html.DisplayNameFor(model => model.CollectorId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Timestamp)
+                Date
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.AirTemp)
@@ -37,7 +37,7 @@
                     @Html.DisplayFor(modelItem => item.CollectorId)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Timestamp)
+                    @item.Date()
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.AirTemp)
@@ -45,10 +45,14 @@
                 <td>
                     @if (item.SoilMoisture != null)
                     {
-                        @foreach (var moisture in item.SoilMoisture)
-                        {
-                            @moisture 
-                        } 
+                        <div class="container">
+                            <div class="row">
+                                @foreach (var moisture in item.SoilMoisture)
+                                {
+                                    <div class="col-sm">@item.SoilMoisture.IndexOf(moisture): @moisture</div>
+                                }
+                            </div>
+                        </div>
                     }
                 </td>
                 <td>
