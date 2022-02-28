@@ -37,7 +37,6 @@ namespace IsIoTWeb.Controllers
         {
             // TODO: Request from sink valves states
             List<ValveState> valves = new List<ValveState>();
-
             for (int i = 0; i < ValvesCount; i++)
             {
                 var valve = new ValveState();
@@ -53,10 +52,18 @@ namespace IsIoTWeb.Controllers
             return View();
         }
 
-        public async Task<RedirectToActionResult> Publish(ValveState valve)
+        public async Task<RedirectToActionResult> TurnOn(ValveState valve)
         {
             await _mqttClient.Connect();
-            await _mqttClient.Publish("/test/dani123/", $"hello_vs {valve.ValveId}");
+            await _mqttClient.Publish($"/valves/{valve.ValveId}", "on");
+            await _mqttClient.Disconnect();
+            return RedirectToAction("Control");
+        }
+
+        public async Task<RedirectToActionResult> TurnOff(ValveState valve)
+        {
+            await _mqttClient.Connect();
+            await _mqttClient.Publish($"/valves/{valve.ValveId}", "off");
             await _mqttClient.Disconnect();
             return RedirectToAction("Control");
         }
