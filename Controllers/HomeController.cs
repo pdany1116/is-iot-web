@@ -18,10 +18,5 @@ namespace IsIoTWeb.Controllers
         {
             return View(_readingRepository.GetAll().Result);
         }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
     }
 }
