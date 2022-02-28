@@ -16,10 +16,10 @@
                 Date
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.AirTemp)
+                @Html.DisplayNameFor(model => model.SoilMoisture)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SoilMoisture)
+                @Html.DisplayNameFor(model => model.AirTemp)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.AirHummidity)
@@ -40,26 +40,26 @@
                     @item.Date()
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.AirTemp)
-                </td>
-                <td>
                     @if (item.SoilMoisture != null)
                     {
                         <div class="container">
                             <div class="row">
                                 @foreach (var moisture in item.SoilMoisture)
                                 {
-                                    <div class="col-sm">@item.SoilMoisture.IndexOf(moisture): @moisture</div>
+                                    <div class="col-sm">@item.SoilMoisture.IndexOf(moisture): @moisture%</div>
                                 }
                             </div>
                         </div>
                     }
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.AirHummidity)
+                    @Html.DisplayFor(modelItem => item.AirTemp) C
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.LightIntensity)
+                    @Html.DisplayFor(modelItem => item.AirHummidity)%
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LightIntensity)%
                 </td>
             </tr>
         }
