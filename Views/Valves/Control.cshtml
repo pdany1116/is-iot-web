@@ -5,8 +5,7 @@
 }
 
 <h1 class="display-4">Valves Control</h1>
-
-<table class="table">
+<table class="table" id="valvesTable">
     <thead>
         <tr>
             <th>
@@ -21,21 +20,54 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
+            <tr id="valve@(item.ValveId)">
+                <td id="valve@(item.ValveId)id">
                     @Html.DisplayFor(modelItem => item.ValveId)
                 </td>
-                <td>
+                <td id="valve@(item.ValveId)state">
                     @Html.DisplayFor(modelItem => item.State)
                 </td>
                 <td>
-                    @Html.ActionLink($"Turn On", "TurnOn", item, new {@class="btn btn-info btn-md", style="white-space: normal" })
+                    @Html.ActionLink("Turn On", "TurnOn", item, new {@class="btn btn-info btn-md", style="white-space: normal"})
                 </td>
                 <td>
-                    @Html.ActionLink($"Turn Off", "TurnOff", item, new {@class="btn btn-info btn-md", style="white-space: normal" })
+                    @Html.ActionLink("Turn Off", "TurnOff", item, new {@class="btn btn-info btn-md", style="white-space: normal"})
                 </td>
             </tr>
         }
     </tbody>
 </table>
-
+@section Scripts
+{
+<script>
+    (function worker() {
+        var data = {};
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetValvesState", "Valves")',
+            contentType: 'application/json; charset=utf-8',
+            dataType: "json",
+            data: JSON.stringify(data),
+            error: function (response) {
+                console.log(response);
+            },
+            success: function (result) {
+                if (result !== "" && result !== null) {
+                    if (Object.keys(result).length != $('#valvesTable tr').length - 1) {
+                        location.reload();
+                    }
+                    if ($('#valve' + result[0].valveId).length > 0) {
+                        $.each(result, function (index) {
+                            console.log('#valve' + result[index].valveId + 'state');
+                            $('#valve' + result[index].valveId + 'state').html(result[index].state);
+                        });
+                    }
+                }
+            },
+            complete: function () {
+                setTimeout(worker, 5000);
+            }
+        });
+    })();
+</script>
+}  

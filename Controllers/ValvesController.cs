@@ -3,8 +3,8 @@ using IsIoTWeb.Mqtt;
 using IsIoTWeb.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace IsIoTWeb.Controllers
@@ -12,7 +12,6 @@ namespace IsIoTWeb.Controllers
     [Authorize]
     public class ValvesController : Controller
     {
-        private const int ValvesCount = 6;
         private IValveRepository _valveRepository;
         private IMqttClient _mqttClient;
 
@@ -27,23 +26,24 @@ namespace IsIoTWeb.Controllers
             return RedirectToAction("Logs");
         }
 
-        public async Task<IActionResult> LogsAsync()
+        public async Task<IActionResult> Logs()
         {
+            await _mqttClient.Connect();
             var result = await _valveRepository.GetAll();
             return View(result);
         }
 
-        public IActionResult Control()
+        public async Task<IActionResult> Control()
         {
-            // TODO: Request from sink valves states
-            List<ValveState> valves = new List<ValveState>();
-            for (int i = 0; i < ValvesCount; i++)
+            await _mqttClient.Connect();
+            await _mqttClient.Publish($"/valves/status/request", "");
+            await _mqttClient.Subscribe("/valves/status/response");
+            var message = _mqttClient.GetLastPayload();
+            if (string.IsNullOrEmpty(message))
             {
-                var valve = new ValveState();
-                valve.ValveId = i;
-                valve.State = "ON";
-                valves.Add(valve);
+                return View(new List<ValveState>());
             }
+            List<ValveState> valves = JsonConvert.DeserializeObject<List<ValveState>>(message);
             return View(valves);
         }
 
@@ -56,7 +56,6 @@ namespace IsIoTWeb.Controllers
         {
             await _mqttClient.Connect();
             await _mqttClient.Publish($"/valves/{valve.ValveId}", "on");
-            await _mqttClient.Disconnect();
             return RedirectToAction("Control");
         }
 
@@ -64,8 +63,19 @@ namespace IsIoTWeb.Controllers
         {
             await _mqttClient.Connect();
             await _mqttClient.Publish($"/valves/{valve.ValveId}", "off");
-            await _mqttClient.Disconnect();
             return RedirectToAction("Control");
+        }
+
+        [HttpPost]
+        public JsonResult GetValvesState()
+        {
+            var message = _mqttClient.GetLastPayload();
+            if (string.IsNullOrEmpty(message))
+            {
+                return Json("");
+            }
+            List<ValveState> valves = JsonConvert.DeserializeObject<List<ValveState>>(message);
+            return Json(valves);
         }
     }
 }

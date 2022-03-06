@@ -2,6 +2,8 @@
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Client.Options;
+using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +14,7 @@ namespace IsIoTWeb.Mqtt
         private readonly IMqttSettings _mqttSettings;
         private readonly MQTTnet.Client.IMqttClient _mqttClient;
         private readonly IMqttClientOptions _mqttClientOptions;
+        private string _lastPayload;
 
         public MqttClient(IMqttSettings mqttSettings)
         {
@@ -25,22 +28,65 @@ namespace IsIoTWeb.Mqtt
 
         public async Task Connect()
         {
-            await _mqttClient.ConnectAsync(_mqttClientOptions, CancellationToken.None);
+            if (!_mqttClient.IsConnected)
+            {
+                await _mqttClient.ConnectAsync(_mqttClientOptions, CancellationToken.None);
+            }
         }
 
         public async Task Disconnect()
         {
-            await _mqttClient.DisconnectAsync();
+            if (_mqttClient.IsConnected)
+            {
+                await _mqttClient.DisconnectAsync();
+            }
         }
 
         public async Task Publish(string topic, string payload)
         {
+            if (!_mqttClient.IsConnected)
+            {
+                return;
+            }
+
             var message = new MqttApplicationMessageBuilder()
-                .WithTopic(topic)
-                .WithPayload(payload)
-                .Build();
+            .WithTopic(topic)
+            .WithPayload(payload)
+            .WithExactlyOnceQoS()
+            .Build();
 
             await _mqttClient.PublishAsync(message, CancellationToken.None);
+        }
+
+        public async Task Subscribe(string topic)
+        {
+            if (!_mqttClient.IsConnected)
+            {
+                return;
+            }
+
+            await _mqttClient.SubscribeAsync(topic, MQTTnet.Protocol.MqttQualityOfServiceLevel.ExactlyOnce);
+            _mqttClient.UseApplicationMessageReceivedHandler(e =>
+            {
+                try
+                {
+                    string topic = e.ApplicationMessage.Topic;
+
+                    if (string.IsNullOrWhiteSpace(topic) == false)
+                    {
+                        _lastPayload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message, ex);
+                }
+            });
+        }
+
+        public string GetLastPayload()
+        {
+            return _lastPayload;
         }
     }
 }

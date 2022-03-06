@@ -8,6 +8,10 @@ namespace IsIoTWeb.Mqtt
 
         Task Publish(string topic, string payload);
 
+        Task Subscribe(string topic);
+
+        string GetLastPayload();
+
         Task Disconnect();
     }
 }
