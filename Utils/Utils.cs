@@ -8,7 +8,7 @@ namespace IsIoTWeb.Utils
         {
             DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             dateTime = dateTime.AddSeconds(timestamp).ToLocalTime();
-            return dateTime.ToString("MM/dd/yyyy HH:mm:ss");
+            return dateTime.ToString("yyyy-MM-dd");
         }
     }
 }
