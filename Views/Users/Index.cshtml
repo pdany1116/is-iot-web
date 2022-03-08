@@ -9,7 +9,7 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
+<table id="tableUsers">
     <thead>
         <tr>
             <th>
@@ -18,7 +18,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.LastName)
             </th>
-           <th>
+            <th>
                 @Html.DisplayNameFor(model => model.Email)
             </th>
             <th>
@@ -27,26 +27,87 @@
             <th></th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhoneNumber)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
-    </tbody>
 </table>
+<link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+
+@section Scripts
+{
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+        $(document).ready(function() {
+            $.ajax({
+                type: "POST",
+                url: "/Users/GetUsers",
+                data: {},
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: OnSuccess,
+                failure: function(response) {
+                    alert(response.d);
+                },
+                error: function(response) {
+                    alert(response.d);
+                }
+            });
+        });
+
+        $(document).on("click", ".btnEdit", function () {
+            var id = $(this).attr("id");
+            console.log(id)
+            $.ajax({
+                type: "POST",
+                url: "/Users/GetId",
+                data: id,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(response) {
+                    window.location.href = '/Users/Edit/' + response.id
+                },
+                failure: function(response) {
+                    alert(response.d);
+                },
+                error: function(response) {
+                    alert(response.d);
+                }
+            });
+        })
+
+        function OnSuccess(response) {
+            $("#tableUsers").DataTable({
+                destroy: true,
+                bLengthChange: true,
+                lengthMenu: [
+                    [10, -1],
+                    [10, "All"]
+                ],
+                bFilter: true,
+                bSort: true,
+                stateSave: true,
+                bPaginate: true,
+                data: response,
+                columns: [
+                    {
+                        data: 'firstName'
+                    },
+                    {
+                        data: 'lastName'
+                    },
+                    {
+                        data: 'email'
+                    },
+                    {
+                        data: 'phoneNumber'
+                    },
+                    {
+                        data: 'id',
+                        render: function (data, type, row) {
+                            data = JSON.stringify(data)
+                            return '<button type="button" id=\''+data+'\' class="btn btn-primary btnEdit">Edit</button>'
+                        }
+                    }
+                ]
+            });
+        };
+</script>
+}

@@ -15,23 +15,50 @@ namespace IsIoTWeb.Repository
         {
             _userManager = userManager;
         }
-        public async Task<List<string>> Create(UserInputModel user)
+        public async Task<List<string>> Create(UserInputModel userInputModel)
         {
-            if (user == null)
+            if (userInputModel == null)
             {
                 throw new ArgumentNullException("User is null!");
             }
 
             User appUser = new User
             {
-                UserName = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PhoneNumber = user.PhoneNumber
+                UserName = userInputModel.Username,
+                Email = userInputModel.Email,
+                FirstName = userInputModel.FirstName,
+                LastName = userInputModel.LastName,
+                PhoneNumber = userInputModel.PhoneNumber
             };
 
-            IdentityResult result = await _userManager.CreateAsync(appUser, user.Password);
+            IdentityResult result = await _userManager.CreateAsync(appUser, userInputModel.Password);
+            List<string> errors = null;
+            if (!result.Succeeded)
+            {
+                errors = new List<string>();
+                foreach (IdentityError error in result.Errors)
+                {
+                    errors.Add(error.Description);
+                }
+            }
+            return errors;
+        }
+
+        public async Task<List<string>> Update(UserInputModel userInputModel)
+        {
+            if (userInputModel == null)
+            {
+                throw new ArgumentNullException("User is null!");
+            }
+
+            User user = await _userManager.FindByEmailAsync(userInputModel.Email);
+            user.FirstName = userInputModel.FirstName;
+            user.LastName = userInputModel.LastName;
+            user.Email = userInputModel.Email;
+            user.PhoneNumber = userInputModel.PhoneNumber;
+            user.UserName = userInputModel.Username;
+
+            IdentityResult result = await _userManager.UpdateAsync(user);
             List<string> errors = null;
             if (!result.Succeeded)
             {

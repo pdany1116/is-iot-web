@@ -6,6 +6,7 @@ namespace IsIoTWeb.Repository
 {
     public interface IUserRepository : IBaseRepository<User>
     {
-        Task<List<string>> Create(UserInputModel user);
+        Task<List<string>> Create(UserInputModel userInputModel);
+        Task<List<string>> Update(UserInputModel userInputModel);
     }
 }
