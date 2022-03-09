@@ -5,7 +5,9 @@ using IsIoTWeb.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -29,11 +31,41 @@ namespace IsIoTWeb.Controllers
             return RedirectToAction("Logs");
         }
 
-        public async Task<IActionResult> Logs()
+        [HttpPost]
+        public async Task<ActionResult> GetValveLogsByFilter([FromBody] ValveLogsFilter? filter)
         {
             await _mqttClient.Connect();
-            var result = await _valveRepository.GetAll();
-            return View(result);
+            List<ValveLog> list = _valveRepository.GetAll().Result.ToList();
+            
+            if (filter == null)
+            {
+                return Json(list);
+            }
+            else
+            {
+                if (filter.ValveId != null)
+                {
+                    list = list.Where(x => x.ValveId == filter.ValveId).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(filter.OneDate))
+                {
+                    list = list.Where(x => x.Date() == filter.OneDate).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(filter.FromDate) && !string.IsNullOrEmpty(filter.ToDate))
+                {
+                    DateTime fromDatetime = DateTime.Parse(filter.FromDate);
+                    DateTime toDatetime = DateTime.Parse(filter.ToDate);
+                    list = list.Where(x => DateTime.Parse(x.Date()) >= fromDatetime && DateTime.Parse(x.Date()) < toDatetime).ToList();
+                }
+            }
+            return Json(list);
+        }
+
+        public IActionResult Logs()
+        {
+            return View();
         }
 
         public async Task<IActionResult> Control()

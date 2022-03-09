@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace IsIoTWeb.Controllers
@@ -34,11 +33,6 @@ namespace IsIoTWeb.Controllers
             }
             else
             {
-                Debug.WriteLine(filter.CollectorId);
-                Debug.WriteLine(filter.OneDate);
-                Debug.WriteLine(filter.FromDate);
-                Debug.WriteLine(filter.ToDate);
-                Debug.WriteLine("");
                 if (filter.CollectorId != null)
                 {
                     list = list.Where(x => x.CollectorId == filter.CollectorId).ToList();

@@ -4,9 +4,36 @@
     ViewData["Title"] = "Logs";
 }
 
-<h1>Valve Logs</h1>
+<div>
+    <label>Enable Filters</label>
+    <input type="checkbox" id="filterCheckbox" name="Filter" />
+</div>
+<div id="filterDiv">
+    <div>
+        <label>Valve ID</label>
+        <input type="checkbox" id="valveIdCheckbox" name="valveIdCheckbox" />
+        <input type="number" id="valveId" />
+    </div>
 
-<table class="table">
+    <div>
+        <label>One Date Filter</label>
+        <input type="checkbox" id="oneDateFilterCheckbox" name="OneDateFilter" checked />
+    </div>
+
+    <div id="oneDateFilterDiv">
+        <label>In</label>
+        <input type="date" id="oneDateFilter" />
+    </div>
+
+    <div id="periodDateFilterDiv">
+        <label>From</label>
+        <input type="date" id="fromDateFilter" />
+        <label>To</label>
+        <input type="date" id="toDateFilter" />
+    </div>
+</div>
+
+<table id="valveLogsTable">
     <thead>
         <tr>
             <th>
@@ -23,23 +50,135 @@
             </th>
         </tr>
     </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ValveId)
-                </td>
-                <td>
-                    @item.Date()
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Action)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UserId)
-                </td>
-            </tr>
-        }
-    </tbody>
 </table>
+
+<link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+
+@section Scripts
+{
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+    $(function worker() {
+        filter = JSON.stringify(CreateFilter())
+        $.ajax({
+            type: "POST",
+            url: "/Valves/GetValveLogsByFilter",
+            data: filter,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: OnSuccess,
+            failure: function(response) {
+                alert(response.d);
+            },
+            error: function(response) {
+                alert(response.d);
+            },
+            complete: function() {
+                setTimeout(worker, 1000);
+            }
+        });
+    });
+
+    function OnSuccess(response) {
+        $("#valveLogsTable").DataTable({
+            destroy: true,
+            bLengthChange: true,
+            lengthMenu: [
+                [10, -1],
+                [10, "All"]
+            ],
+            bFilter: true,
+            bSort: true,
+            stateSave: true,
+            bPaginate: true,
+            searching: false,
+            order: [
+                [1, 'desc']
+            ],
+            data: response,
+            columns: [{
+                    data: 'valveId'
+                },
+                {
+                    data: 'timestamp',
+                    render: function(data, type, row) {
+                        const dateObject = new Date(data * 1000);
+                        if (type === "sort")
+                            return dateObject;
+                        var options = {
+                            year: 'numeric',
+                            month: 'numeric',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            second: 'numeric',
+                            hour12: false
+                        }
+                        const humanDateFormat = dateObject.toLocaleDateString('en-GB', options);
+                        return humanDateFormat;
+                    }
+                },
+                {
+                    data: 'action'
+                },
+                {
+                    data: 'userId'
+                }
+            ]
+        });
+    };
+
+    function CreateFilter() {
+        var filter = new Object();
+        if ($("#filterCheckbox").is(":checked") === false) {
+            return filter;
+        }
+        if ($("#valveIdCheckbox").is(":checked")) {
+            filter.valveId = parseInt($("#valveId").val());
+        } else {
+            filter.valveId = null;
+        }
+        if ($("#oneDateFilterCheckbox").is(":checked")) {
+            date = $("#oneDateFilter").val()
+            if (date !== "") {
+                filter.oneDate = date
+            } else {
+                filter.oneDate = null;
+            }
+            filter.fromDate = null
+            filter.toDate = null
+        } else {
+            filter.oneDate = null;
+            fromDate = $("#fromDateFilter").val()
+            toDate = $("#toDateFilter").val()
+            filter.fromDate = fromDate
+            filter.toDate = toDate
+        }
+        return filter
+    };
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#filterDiv").hide();
+        $("#oneDateFilterDiv").show();
+        $("#periodDateFilterDiv").hide();
+        $('#filterCheckbox').click(function() {
+            if ($(this).is(":checked")) {
+                $("#filterDiv").show();
+            } else {
+                $("#filterDiv").hide();
+            }
+        })
+        $('#oneDateFilterCheckbox').click(function() {
+            if ($(this).is(":checked")) {
+                $("#oneDateFilterDiv").show();
+                $("#periodDateFilterDiv").hide();
+            } else {
+                $("#oneDateFilterDiv").hide();
+                $("#periodDateFilterDiv").show();
+            }
+        })
+    });
+</script>
+}
