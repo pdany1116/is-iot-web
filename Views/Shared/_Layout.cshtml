@@ -41,17 +41,12 @@
                     @{
                         if (User?.Identity?.IsAuthenticated ?? false)
                         {
-                            <li class="nav-item">
-                                <u>Welcome: @User.Identity.Name</u>
-                                <a asp-controller="Account" asp-action="Logout" class="btn btn-danger">Logout</a>
-                            </li>
-
+                            <span class="align-middle mx-auto" style="width: 75px;">@User.Identity.Name</span>
+                            <a asp-controller="Account" asp-action="Logout" class="btn btn-danger">Logout</a>
                         }
                         else
                         {
-                            <li>
-                                <a asp-controller="Account" asp-action="Login">Log in</a>
-                            </li>
+                            <a asp-controller="Account" asp-action="Login">Log in</a>
                         }
                     }
                 </div>
