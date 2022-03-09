@@ -54,7 +54,6 @@
 
         $(document).on("click", ".btnEdit", function () {
             var id = $(this).attr("id");
-            console.log(id)
             $.ajax({
                 type: "POST",
                 url: "/Users/GetId",

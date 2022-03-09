@@ -1,10 +1,13 @@
 ﻿using IsIoTWeb.Models;
+using IsIoTWeb.Models.Valve;
 using IsIoTWeb.Mqtt;
 using IsIoTWeb.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace IsIoTWeb.Controllers
@@ -39,12 +42,7 @@ namespace IsIoTWeb.Controllers
             await _mqttClient.Publish($"/valves/status/request", "");
             await _mqttClient.Subscribe("/valves/status/response");
             var message = _mqttClient.GetLastPayload();
-            if (string.IsNullOrEmpty(message))
-            {
-                return View(new List<ValveState>());
-            }
-            List<ValveState> valves = JsonConvert.DeserializeObject<List<ValveState>>(message);
-            return View(valves);
+            return View();
         }
 
         public IActionResult Configure()
@@ -52,30 +50,50 @@ namespace IsIoTWeb.Controllers
             return View();
         }
 
-        public async Task<RedirectToActionResult> TurnOn(ValveState valve)
+        [HttpPost]
+        public async Task<ActionResult> Action([FromBody] ValveAction valve)
         {
             await _mqttClient.Connect();
-            await _mqttClient.Publish($"/valves/{valve.ValveId}", "on");
-            return RedirectToAction("Control");
-        }
+            var valveState = GetLastValvesState().Where(x => x.ValveId == valve.ValveId).FirstOrDefault();
+            if (valveState == null)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, $"Valve [{valve.ValveId}] does not exist.");
+            }
 
-        public async Task<RedirectToActionResult> TurnOff(ValveState valve)
-        {
-            await _mqttClient.Connect();
-            await _mqttClient.Publish($"/valves/{valve.ValveId}", "off");
-            return RedirectToAction("Control");
+            if ((valveState.State == "ON" && valve.Action == "TURN_OFF") || (valveState.State == "OFF" && valve.Action == "TURN_ON"))
+            {
+                await _mqttClient.Publish($"/valves/{valve.ValveId}", valve.Action);
+                return StatusCode((int)HttpStatusCode.OK);
+            }
+            else if (valveState.State == "OFF" && valve.Action == "TURN_OFF")
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, $"Valve [{valve.ValveId}] is already turned off.");
+            }
+            else if (valveState.State == "ON" && valve.Action == "TURN_ON")
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, $"Valve [{valve.ValveId}] is already turned on.");
+            }
+            else
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, $"Undefined.");
+            }
         }
 
         [HttpPost]
         public JsonResult GetValvesState()
         {
+            return Json(GetLastValvesState());
+        }
+
+        public List<ValveState> GetLastValvesState()
+        {
             var message = _mqttClient.GetLastPayload();
-            if (string.IsNullOrEmpty(message))
+            List<ValveState> valves = new List<ValveState>();
+            if (!string.IsNullOrEmpty(message))
             {
-                return Json("");
+                valves = JsonConvert.DeserializeObject<List<ValveState>>(message);
             }
-            List<ValveState> valves = JsonConvert.DeserializeObject<List<ValveState>>(message);
-            return Json(valves);
+            return valves;
         }
     }
 }

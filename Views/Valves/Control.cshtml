@@ -5,7 +5,7 @@
 }
 
 <h1 class="display-4">Valves Control</h1>
-<table class="table" id="valvesTable">
+<table class="table" id="tableValves">
     <thead>
         <tr>
             <th>
@@ -15,59 +15,110 @@
                 @Html.DisplayNameFor(model => model.State)
             </th>
             <th></th>
+            <th></th>
         </tr>
     </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr id="valve@(item.ValveId)">
-                <td id="valve@(item.ValveId)id">
-                    @Html.DisplayFor(modelItem => item.ValveId)
-                </td>
-                <td id="valve@(item.ValveId)state">
-                    @Html.DisplayFor(modelItem => item.State)
-                </td>
-                <td>
-                    @Html.ActionLink("Turn On", "TurnOn", item, new {@class="btn btn-info btn-md", style="white-space: normal"})
-                </td>
-                <td>
-                    @Html.ActionLink("Turn Off", "TurnOff", item, new {@class="btn btn-info btn-md", style="white-space: normal"})
-                </td>
-            </tr>
-        }
-    </tbody>
 </table>
+<link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
 @section Scripts
 {
-<script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
     (function worker() {
-        var data = {};
         $.ajax({
             type: "POST",
-            url: '@Url.Action("GetValvesState", "Valves")',
-            contentType: 'application/json; charset=utf-8',
+            url: "/Valves/GetValvesState",
+            data: {},
+            contentType: "application/json; charset=utf-8",
             dataType: "json",
-            data: JSON.stringify(data),
-            error: function (response) {
-                console.log(response);
+            success: OnSuccess,
+            failure: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
             },
-            success: function (result) {
-                if (result !== "" && result !== null) {
-                    if (Object.keys(result).length != $('#valvesTable tr').length - 1) {
-                        location.reload();
-                    }
-                    if ($('#valve' + result[0].valveId).length > 0) {
-                        $.each(result, function (index) {
-                            console.log('#valve' + result[index].valveId + 'state');
-                            $('#valve' + result[index].valveId + 'state').html(result[index].state);
-                        });
-                    }
-                }
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
             },
-            complete: function () {
-                setTimeout(worker, 5000);
+            complete: function() {
+                setTimeout(worker, 1000);
             }
         });
     })();
+
+    $(document).on("click", ".btnTurnOn", function() {
+        var id = $(this).attr("id");
+        action = JSON.stringify(CreateValveAction(id, "TURN_ON"))
+        $.ajax({
+            type: "POST",
+            url: "/Valves/Action",
+            data: action,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(response) {},
+            failure: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
+            }
+        });
+    })
+
+    $(document).on("click", ".btnTurnOff", function() {
+        var id = $(this).attr("id");
+        action = JSON.stringify(CreateValveAction(id, "TURN_OFF"))
+        $.ajax({
+            type: "POST",
+            url: "/Valves/Action",
+            data: action,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(response) {},
+            failure: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
+            }
+        });
+    })
+
+    function OnSuccess(response) {
+        $("#tableValves").DataTable({
+            destroy: true,
+            bFilter: false,
+            bSort: false,
+            stateSave: true,
+            searching: false,
+            bPaginate: false,
+            data: response,
+            columns: [{
+                    data: 'valveId'
+                },
+                {
+                    data: 'state'
+                },
+                {
+                    data: 'valveId',
+                    render: function(data, type, row) {
+                        return '<button type="button" id=\'' + data + '\' class="btn btn-primary btnTurnOn">Turn On</button>'
+                    }
+                },
+                {
+                    data: 'valveId',
+                    render: function(data, type, row) {
+                        return '<button type="button" id=\'' + data + '\' class="btn btn-primary btnTurnOff">Turn Off</button>'
+                    }
+                }
+            ]
+        });
+    };
+
+    function CreateValveAction(id, action) {
+        data = new Object();
+        data.valveId = parseInt(id);
+        data.action = action;
+        return data;
+    }
 </script>
 }  
