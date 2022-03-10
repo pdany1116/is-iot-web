@@ -86,6 +86,13 @@ namespace IsIoTWeb.Mqtt
 
         public string GetLastPayload()
         {
+           Task.Run(() =>
+            {
+                while (_lastPayload == null)
+                {
+                    Task.Delay(25);
+                }
+            }).Wait(500);
             return _lastPayload;
         }
     }

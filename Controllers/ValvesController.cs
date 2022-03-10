@@ -5,6 +5,7 @@ using IsIoTWeb.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -36,7 +37,7 @@ namespace IsIoTWeb.Controllers
         {
             await _mqttClient.Connect();
             List<ValveLog> list = _valveRepository.GetAll().Result.ToList();
-            
+
             if (filter == null)
             {
                 return Json(list);
@@ -71,9 +72,8 @@ namespace IsIoTWeb.Controllers
         public async Task<IActionResult> Control()
         {
             await _mqttClient.Connect();
-            await _mqttClient.Publish($"/valves/status/request", "");
-            await _mqttClient.Subscribe("/valves/status/response");
-            var message = _mqttClient.GetLastPayload();
+            await _mqttClient.Publish($"/valves/status/request/", "");
+            await _mqttClient.Subscribe("/valves/status/response/");
             return View();
         }
 
@@ -94,7 +94,11 @@ namespace IsIoTWeb.Controllers
 
             if ((valveState.State == "ON" && valve.Action == "TURN_OFF") || (valveState.State == "OFF" && valve.Action == "TURN_ON"))
             {
-                await _mqttClient.Publish($"/valves/{valve.ValveId}", valve.Action);
+                await _mqttClient.Publish($"/valves/control/", JsonConvert.SerializeObject(valve, new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                }));
+                await _mqttClient.Publish($"/valves/status/request/", "");
                 return StatusCode((int)HttpStatusCode.OK);
             }
             else if (valveState.State == "OFF" && valve.Action == "TURN_OFF")
@@ -112,12 +116,13 @@ namespace IsIoTWeb.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetValvesState()
+        public async Task<JsonResult> GetValvesState()
         {
+            await _mqttClient.Publish($"/valves/status/request/", "");
             return Json(GetLastValvesState());
         }
 
-        public List<ValveState> GetLastValvesState()
+        private List<ValveState> GetLastValvesState()
         {
             var message = _mqttClient.GetLastPayload();
             List<ValveState> valves = new List<ValveState>();

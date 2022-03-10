@@ -5,5 +5,7 @@
         public int ValveId { get; set; }
 
         public string Action { get; set; }
+
+        public int? UserId { get; set; }
     }
 }
