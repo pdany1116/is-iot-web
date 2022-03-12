@@ -44,7 +44,7 @@
                 @Html.DisplayNameFor(model => model.SoilMoisture)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.AirTemp)
+                @Html.DisplayNameFor(model => model.AirTemperature)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.AirHummidity)
@@ -134,7 +134,7 @@
                     }
                 },
                 {
-                    data: 'airTemp',
+                    data: 'airTemperature',
                     render: function(data, type, row) {
                         return data + "°C";
                     }

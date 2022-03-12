@@ -20,8 +20,8 @@ namespace IsIoTWeb.Models
         [BsonElement("soilMoisture")]
         public List<double> SoilMoisture { get; set; }
 
-        [BsonElement("airTemp")]
-        public double AirTemp { get; set; }
+        [BsonElement("airTemperature")]
+        public double AirTemperature { get; set; }
 
         [BsonElement("airHummidity")]
         public double AirHummidity { get; set; }
