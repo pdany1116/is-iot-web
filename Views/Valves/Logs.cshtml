@@ -58,6 +58,7 @@
 {
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
 <script type="text/javascript">
     $(function worker() {
         filter = JSON.stringify(CreateFilter())
@@ -103,20 +104,9 @@
                 {
                     data: 'timestamp',
                     render: function(data, type, row) {
-                        const dateObject = new Date(data * 1000);
                         if (type === "sort")
-                            return dateObject;
-                        var options = {
-                            year: 'numeric',
-                            month: 'numeric',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                            second: 'numeric',
-                            hour12: false
-                        }
-                        const humanDateFormat = dateObject.toLocaleDateString('en-GB', options);
-                        return humanDateFormat;
+                            return data;
+                        return moment.unix(data).format("DD/MM/YYYY, HH:mm:ss");
                     }
                 },
                 {
