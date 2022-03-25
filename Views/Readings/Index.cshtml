@@ -56,6 +56,8 @@
     </thead>
 </table>
 
+<canvas id="line-chart" width="800" height="450"></canvas>
+<br />
 <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
 
 @section Scripts
@@ -63,138 +65,225 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 <script type="text/javascript">
-    $(function worker() {
-        filter = JSON.stringify(CreateFilter())
-        $.ajax({
-            type: "POST",
-            url: "/Readings/GetReadingsByFilter",
-            data: filter,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: OnSuccess,
-            failure: function(response) {
-                alert(response.d);
-            },
-            error: function(response) {
-                alert(response.d);
-            },
-            complete: function() {
-                setTimeout(worker, 1000);
-            }
-        });
-    });
+	window.myChart = {}
+	window.chartInit = true
+	$(function worker() {
+		filter = JSON.stringify(CreateFilter())
+		$.ajax({
+			type: "POST",
+			url: "/Readings/GetReadingsByFilter",
+			data: filter,
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			success: OnSuccess,
+			failure: function(response) {
+				alert(response.d);
+			},
+			error: function(response) {
+				alert(response.d);
+			},
+			complete: function() {
+				setTimeout(worker, 1000);
+			}
+		});
+	});
 
-    function OnSuccess(response) {
-        $("#tableReadings").DataTable({
-            destroy: true,
-            bLengthChange: true,
-            lengthMenu: [
-                [10, -1],
-                [10, "All"]
-            ],
-            bFilter: true,
-            bSort: true,
-            stateSave: true,
-            bPaginate: true,
-            searching: false,
-            order: [
-                [1, 'desc']
-            ],
-            data: response,
-            columns: [{
-                    data: 'collectorId'
-                },
-                {
-                    data: 'timestamp',
-                    render: function(data, type, row) {
-                        if (type === "sort")
-                            return data;
-                        return moment.unix(data).format("DD/MM/YYYY, HH:mm:ss");
-                    }
-                },
-                {
-                    data: 'soilMoisture',
-                    render: function(data, type, row) {
-                        var out = "";
-                        for (const property in data) {
-                            out = out + `[${property}]: ${data[property]}% `;
-                        }
-                        return out;
-                    }
-                },
-                {
-                    data: 'airTemperature',
-                    render: function(data, type, row) {
-                        return data + "°C";
-                    }
-                },
-                {
-                    data: 'airHummidity',
-                    render: function(data, type, row) {
-                        return data + "%";
-                    }
-                },
-                {
-                    data: 'lightIntensity',
-                    render: function(data, type, row) {
-                        return data + "%";
-                    }
-                }
-            ]
-        });
-    };
+	function OnSuccess(response) {
+		$("#tableReadings").DataTable({
+			destroy: true,
+			bLengthChange: true,
+			lengthMenu: [
+				[10, -1],
+				[10, "All"]
+			],
+			bFilter: true,
+			bSort: true,
+			stateSave: true,
+			bPaginate: true,
+			searching: false,
+			order: [
+				[1, 'desc']
+			],
+			data: response,
+			columns: [{
+					data: 'collectorId'
+				},
+				{
+					data: 'timestamp',
+					render: function(data, type, row) {
+						if (type === "sort")
+							return data;
+						return moment.unix(data).format("DD/MM/YYYY, HH:mm:ss");
+					}
+				},
+				{
+					data: 'soilMoisture',
+					render: function(data, type, row) {
+						var out = "";
+						for (const property in data) {
+							out = out + `[${property}]: ${data[property]}% `;
+						}
+						return out;
+					}
+				},
+				{
+					data: 'airTemperature',
+					render: function(data, type, row) {
+						return data + "°C";
+					}
+				},
+				{
+					data: 'airHummidity',
+					render: function(data, type, row) {
+						return data + "%";
+					}
+				},
+				{
+					data: 'lightIntensity',
+					render: function(data, type, row) {
+						return data + "%";
+					}
+				}
+			]
+		});
 
-    function CreateFilter() {
-        var filter = new Object();
-        if ($("#filterCheckbox").is(":checked") === false) {
-            return filter;
-        }
-        if ($("#collectorIdCheckbox").is(":checked")) {
-            filter.collectorId = parseInt($("#collectorId").val());
-        } else {
-            filter.collectorId = null;
-        }
-        if ($("#oneDateFilterCheckbox").is(":checked")) {
-            date = $("#oneDateFilter").val()
-            if (date !== "") {
-                filter.oneDate = date
-            } else {
-                filter.oneDate = null;
-            }
-            filter.fromDate = null
-            filter.toDate = null
-        } else {
-            filter.oneDate = null;
-            fromDate = $("#fromDateFilter").val()
-            toDate = $("#toDateFilter").val()
-            filter.fromDate = fromDate
-            filter.toDate = toDate
-        }
-        return filter
-    };
+		if (window.chartInit === true) {
+			console.log("init")
+			CreateChart(response)
+			window.chartInit = false
+		}
+
+		UpdateChartData(window.myChart, response)
+	};
+
+	function CreateChart(incomingData) {
+		// Draw the chart
+		window.myChart = new Chart(document.getElementById("line-chart"), {
+			type: 'line',
+			data: {
+				labels: GetTimestampsAsDates(incomingData.map(a => a.timestamp)),
+				datasets: [{
+					data: incomingData.map(a => a.soilMoisture[0]),
+					label: "Soil Moisture [0]",
+					borderColor: "#3e95cd",
+					fill: false
+				}, {
+					data: incomingData.map(a => a.soilMoisture[1]),
+					label: "Soil Moisture [1]",
+					borderColor: "#8e5ea2",
+					fill: false
+				}, {
+					data: incomingData.map(a => a.airTemperature),
+					label: "Air Temperature",
+					borderColor: "#3cba9f",
+					fill: false
+				}, {
+					data: incomingData.map(a => a.airHummidity),
+					label: "Air Humidity",
+					borderColor: "#e8c3b9",
+					fill: false
+				}, {
+					data: incomingData.map(a => a.lightIntensity),
+					label: "Light Intensityy",
+					borderColor: "#c45850",
+					fill: false
+				}]
+			},
+			options: {
+				title: {
+					display: true,
+					text: 'Collected data'
+				},
+				animation: {
+					animation: false
+				}
+			}
+		});
+	}
+
+	function GetTimestampsAsDates(timestamps) {
+		let dates = []
+		timestamps.forEach((timestamp) => {
+			dates.push(moment.unix(timestamp).format("DD/MM/YYYY, HH:mm:ss"))
+		})
+		return dates
+	}
+
+	function UpdateChartData(chart, data) {
+		// Clear labels
+		chart.data.labels = []
+
+		// Update labels with the newest dates
+		chart.data.labels = GetTimestampsAsDates(data.map(a => a.timestamp))
+
+		// Clear datasets
+		chart.data.datasets.forEach((dataset) => {
+			dataset.data = []
+		});
+
+		// Update labels with the newest dates
+		chart.data.datasets[0].data = data.map(a => a.soilMoisture[0])
+		chart.data.datasets[1].data = data.map(a => a.soilMoisture[1])
+		chart.data.datasets[2].data = data.map(a => a.airTemperature)
+		chart.data.datasets[3].data = data.map(a => a.airHummidity)
+		chart.data.datasets[4].data = data.map(a => a.lightIntensity)
+
+		// Commit
+		chart.update();
+	}
+
+	function CreateFilter() {
+		var filter = new Object();
+		if ($("#filterCheckbox").is(":checked") === false) {
+			return filter;
+		}
+		if ($("#collectorIdCheckbox").is(":checked")) {
+			filter.collectorId = parseInt($("#collectorId").val());
+		} else {
+			filter.collectorId = null;
+		}
+		if ($("#oneDateFilterCheckbox").is(":checked")) {
+			date = $("#oneDateFilter").val()
+			if (date !== "") {
+				filter.oneDate = date
+			} else {
+				filter.oneDate = null;
+			}
+			filter.fromDate = null
+			filter.toDate = null
+		} else {
+			filter.oneDate = null;
+			fromDate = $("#fromDateFilter").val()
+			toDate = $("#toDateFilter").val()
+			filter.fromDate = fromDate
+			filter.toDate = toDate
+		}
+		return filter
+	};
 </script>
 <script type="text/javascript">
     $(document).ready(function() {
-        $("#filterDiv").hide();
-        $("#oneDateFilterDiv").show();
-        $("#periodDateFilterDiv").hide();
-        $('#filterCheckbox').click(function() {
-            if ($(this).is(":checked")) {
-                $("#filterDiv").show();
-            } else {
-                $("#filterDiv").hide();
-            }
-        })
-        $('#oneDateFilterCheckbox').click(function() {
-            if ($(this).is(":checked")) {
-                $("#oneDateFilterDiv").show();
-                $("#periodDateFilterDiv").hide();
-            } else {
-                $("#oneDateFilterDiv").hide();
-                $("#periodDateFilterDiv").show();
-            }
-        })
+    	$("#filterDiv").hide();
+    	$("#oneDateFilterDiv").show();
+    	$("#periodDateFilterDiv").hide();
+    	$('#filterCheckbox').click(function() {
+    		if ($(this).is(":checked")) {
+    			$("#filterDiv").show();
+    		} else {
+    			$("#filterDiv").hide();
+    		}
+    	})
+    	$('#oneDateFilterCheckbox').click(function() {
+    		if ($(this).is(":checked")) {
+    			$("#oneDateFilterDiv").show();
+    			$("#periodDateFilterDiv").hide();
+    		} else {
+    			$("#oneDateFilterDiv").hide();
+    			$("#periodDateFilterDiv").show();
+    		}
+    	})
     });
 </script>
 }
