@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "Index";
 }
+<canvas id="line-chart" width="600" height="350"></canvas>
+<br />
 <div>
     <label>Enable Filters</label>
     <input type="checkbox" id="filterCheckbox" name="Filter" />
@@ -56,8 +58,6 @@
     </thead>
 </table>
 
-<canvas id="line-chart" width="800" height="450"></canvas>
-<br />
 <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
 
 @section Scripts
@@ -168,27 +168,27 @@
 					data: incomingData.map(a => a.soilMoisture[0]),
 					label: "Soil Moisture [0]",
 					borderColor: "#3e95cd",
-					fill: false
+					fill: true
 				}, {
 					data: incomingData.map(a => a.soilMoisture[1]),
 					label: "Soil Moisture [1]",
 					borderColor: "#8e5ea2",
-					fill: false
+					fill: true
 				}, {
 					data: incomingData.map(a => a.airTemperature),
 					label: "Air Temperature",
 					borderColor: "#3cba9f",
-					fill: false
+					fill: true
 				}, {
 					data: incomingData.map(a => a.airHummidity),
 					label: "Air Humidity",
 					borderColor: "#e8c3b9",
-					fill: false
+					fill: true
 				}, {
 					data: incomingData.map(a => a.lightIntensity),
 					label: "Light Intensityy",
 					borderColor: "#c45850",
-					fill: false
+					fill: true
 				}]
 			},
 			options: {
@@ -198,6 +198,23 @@
 				},
 				animation: {
 					animation: false
+				},
+				scales: {
+					y: {
+						min: 0,
+						max: 100,
+						ticks: {
+							min: 0,
+							max: 100,
+							callback: function(value) {
+								return (value).toFixed(0) + '%';
+							},
+						},
+						scaleLabel: {
+							display: true,
+							labelString: 'Percentage',
+						}
+					}
 				}
 			}
 		});
