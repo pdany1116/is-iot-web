@@ -113,7 +113,10 @@
                     data: 'action'
                 },
                 {
-                    data: 'userId'
+                    data: 'user',
+                    render: function(data, type, row) {
+                        return '<a href="/Users/Details/' + data.id + '" class="aDetails">' + data.fullName + '</a>'
+                    }
                 }
             ]
         });
@@ -147,6 +150,7 @@
         }
         return filter
     };
+
 </script>
 <script type="text/javascript">
     $(document).ready(function() {

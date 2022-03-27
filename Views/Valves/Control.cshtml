@@ -5,6 +5,10 @@
 }
 
 <h1 class="display-4">Valves Control</h1>
+
+<div class="text-right">
+    <button type="button" class="btn btn-primary btnTurnAllOff">Turn All Valves Off</button>
+</div>
 <table class="table" id="tableValves">
     <thead>
         <tr>
@@ -73,11 +77,30 @@
     $(document).on("click", ".btnTurnOff", function() {
         var id = $(this).attr("id");
         action = JSON.stringify(CreateValveAction(id, "TURN_OFF"))
-        console.log(action)
         $.ajax({
             type: "POST",
             url: "/Valves/Action",
             data: action,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(response) {},
+            failure: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
+            },
+            complete: function() {
+                 UpdateTable()
+            }
+        });
+    })
+
+    $(document).on("click", ".btnTurnAllOff", function() {
+        $.ajax({
+            type: "POST",
+            url: "/Valves/TurnAllOff",
+            data: {},
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(response) {},
@@ -128,7 +151,6 @@
         data = new Object();
         data.valveId = parseInt(id);
         data.action = action;
-        data.userId = null;
         return data;
     }
 </script>
