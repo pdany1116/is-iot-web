@@ -52,7 +52,7 @@
             });
         });
 
-        $(document).on("click", ".btnEdit", function () {
+        $(document).on("click", ".btnDetails", function () {
             var id = $(this).attr("id");
             $.ajax({
                 type: "POST",
@@ -61,7 +61,7 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(response) {
-                    window.location.href = '/Users/Edit/' + response.id
+                    window.location.href = '/Users/Details/' + response.id
                 },
                 failure: function(response) {
                     alert(response.d);
@@ -102,7 +102,7 @@
                         data: 'id',
                         render: function (data, type, row) {
                             data = JSON.stringify(data)
-                            return '<button type="button" id=\''+data+'\' class="btn btn-primary btnEdit">Edit</button>'
+                            return '<button type="button" id=\''+data+'\' class="btn btn-primary btnDetails">Details</button>'
                         }
                     }
                 ]

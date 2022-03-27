@@ -14,7 +14,25 @@ namespace IsIoTWeb.Repository
         public UserRepository(IMongoDbContext context, UserManager<User> userManager) : base(context, CollectionName)
         {
             _userManager = userManager;
+            _userManager.Options.User.RequireUniqueEmail = true;
         }
+
+        public async Task<User> GetLoggedUserByUsername(string username)
+        {
+            return await _userManager.FindByNameAsync(username);
+        }
+
+        public override async Task Delete(string id)
+        {
+            User user = await _userManager.FindByIdAsync(id);
+            await _userManager.DeleteAsync(user);
+        }
+
+        public override async Task<User> Get(string id)
+        {
+            return await _userManager.FindByIdAsync(id);
+        }
+
         public async Task<List<string>> Create(UserInputModel userInputModel)
         {
             if (userInputModel == null)
@@ -51,7 +69,7 @@ namespace IsIoTWeb.Repository
                 throw new ArgumentNullException("User is null!");
             }
 
-            User user = await _userManager.FindByEmailAsync(userInputModel.Email);
+            User user = await _userManager.FindByNameAsync(userInputModel.Username);
             user.FirstName = userInputModel.FirstName;
             user.LastName = userInputModel.LastName;
             user.Email = userInputModel.Email;

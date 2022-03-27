@@ -2,7 +2,6 @@
 using IsIoTWeb.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,26 +31,25 @@ namespace IsIoTWeb.Controllers
 
         public ViewResult Create() => View();
 
+        public ViewResult Details() => View();
+
         [HttpPost]
         public async Task<IActionResult> Create(UserInputModel user)
         {
             if (ModelState.IsValid)
             {
                 var errors = await _userRepository.Create(user);
-
-                if (errors == null)
-                {
-                    ViewBag.Message = "User Created Successfully";
-                }
-                else
+                if (errors != null)
                 {
                     foreach (string error in errors)
                     {
                         ModelState.AddModelError("", error);
                     }
+                    return View(user);
                 }
             }
-            return View(user);
+
+            return RedirectToAction("Index");
         }
 
         public ViewResult Edit() => View();
@@ -59,7 +57,7 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         public IActionResult GetId([FromBody] UserDynamicId id)
         {
-            return Json(new { id = new ObjectId(id.Timestamp, id.Machine, id.Pid, id.Increment).ToString() });
+            return Json(new { id = Utils.Utils.DynamicObjectIdToString(id.Timestamp, id.Machine, id.Pid, id.Increment) });
         }
 
         [HttpGet]
@@ -73,6 +71,20 @@ namespace IsIoTWeb.Controllers
             userInputModel.PhoneNumber = user.PhoneNumber;
             userInputModel.Username = user.UserName;
             return View(userInputModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(string id)
+        {
+            var user = await _userRepository.Get(id);
+            return View(user);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(string id)
+        {
+            await _userRepository.Delete(id);
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
