@@ -18,7 +18,6 @@ namespace IsIoTWeb.Controllers
             this.signInManager = signInManager;
         }
 
-
         public IActionResult Login()
         {
             return View();
@@ -27,11 +26,11 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login([Required][EmailAddress] string email, [Required] string password)
+        public async Task<IActionResult> Login([Required] string username, [Required] string password)
         {
             if (ModelState.IsValid)
             {
-                User appUser = await userManager.FindByEmailAsync(email);
+                User appUser = await userManager.FindByNameAsync(username);
                 if (appUser != null)
                 {
                     Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(appUser, password, false, false);
@@ -40,7 +39,7 @@ namespace IsIoTWeb.Controllers
                         return Redirect("/");
                     }
                 }
-                ModelState.AddModelError(nameof(email), "Login Failed: Invalid Email or Password");
+                ModelState.AddModelError(nameof(username), "Login Failed: Invalid Email or Password");
             }
 
             return View();

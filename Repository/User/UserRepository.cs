@@ -14,7 +14,6 @@ namespace IsIoTWeb.Repository
         public UserRepository(IMongoDbContext context, UserManager<User> userManager) : base(context, CollectionName)
         {
             _userManager = userManager;
-            _userManager.Options.User.RequireUniqueEmail = true;
         }
 
         public async Task<User> GetLoggedUserByUsername(string username)
