@@ -99,7 +99,7 @@ namespace IsIoTWeb.Controllers
         public async Task<IActionResult> Control()
         {
             await _mqttClient.Connect();
-            await _mqttClient.Publish($"/valves/status/request/", "");
+            RequestStatus();
             await _mqttClient.Subscribe("/valves/status/response/");
             return View();
         }
@@ -128,7 +128,7 @@ namespace IsIoTWeb.Controllers
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             }));
-            await _mqttClient.Publish($"/valves/status/request/", "");
+            RequestStatus();
 
             if ((valveState.State == "ON" && valveActionInput.Action == "TURN_OFF") || (valveState.State == "OFF" && valveActionInput.Action == "TURN_ON"))
             {
@@ -164,14 +164,14 @@ namespace IsIoTWeb.Controllers
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
                 }));
             }
-            await _mqttClient.Publish($"/valves/status/request/", "");
+            RequestStatus();
             return StatusCode((int)HttpStatusCode.OK);
         }
 
         [HttpPost]
         public async Task<JsonResult> GetValvesState()
         {
-            await _mqttClient.Publish($"/valves/status/request/", "");
+            RequestStatus();
             return Json(GetLastValvesState());
         }
 
@@ -184,6 +184,11 @@ namespace IsIoTWeb.Controllers
                 valves = JsonConvert.DeserializeObject<List<ValveState>>(message);
             }
             return valves;
+        }
+
+        private async void RequestStatus()
+        {
+            await _mqttClient.Publish($"/valves/status/request/", "{}");
         }
     }
 }
