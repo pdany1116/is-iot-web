@@ -14,7 +14,7 @@
     <div>
         <label>Collector ID</label>
         <input type="checkbox" id="collectorIdCheckbox" name="CollectorIdCheckbox" />
-        <input type="number" id="collectorId" />
+        <input type="text" id="collectorId" />
     </div>
 
     <div>
@@ -406,7 +406,7 @@
 			return filter;
 		}
 		if ($("#collectorIdCheckbox").is(":checked")) {
-			filter.collectorId = parseInt($("#collectorId").val());
+			filter.collectorId = $("#collectorId").val();
 		} else {
 			filter.collectorId = null;
 		}

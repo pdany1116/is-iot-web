@@ -35,7 +35,7 @@ namespace IsIoTWeb.Controllers
             {
                 if (filter.CollectorId != null)
                 {
-                    list = list.Where(x => x.CollectorId == filter.CollectorId).ToList();
+                    list = list.Where(x => string.Equals(x.CollectorId, filter.CollectorId)).ToList();
                 }
 
                 if (!string.IsNullOrEmpty(filter.OneDate))

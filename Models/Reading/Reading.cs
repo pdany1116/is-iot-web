@@ -12,7 +12,7 @@ namespace IsIoTWeb.Models
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
         [BsonElement("collectorId")]
-        public int CollectorId { get; set; }
+        public string CollectorId { get; set; }
 
         [BsonElement("timestamp")]
         public double Timestamp { get; set; }
