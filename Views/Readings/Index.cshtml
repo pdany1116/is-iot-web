@@ -51,7 +51,7 @@
                 Air Temperature
             </th>
             <th>
-                Air Hummidity
+                Air Humidity
             </th>
             <th>
                 Light Intensity
@@ -138,7 +138,7 @@
 					}
 				},
 				{
-					data: 'airHummidity',
+					data: 'airHumidity',
 					render: function(data, type, row) {
 						return data + "%";
 					}
@@ -188,7 +188,7 @@
 					fill: true,
 					tension: 0.5
 				}, {
-					data: incomingData.map(a => a.airHummidity),
+					data: incomingData.map(a => a.airHumidity),
 					label: "Air Humidity",
 					borderColor: "#e8c3b9",
 					borderWidth: 4,
@@ -374,7 +374,7 @@
 		// Update labels with the newest dates
 		chart.data.datasets[0].data = data.map(a => a.soilMoisture[0])
 		chart.data.datasets[1].data = data.map(a => a.soilMoisture[1])
-		chart.data.datasets[2].data = data.map(a => a.airHummidity)
+		chart.data.datasets[2].data = data.map(a => a.airHumidity)
 		chart.data.datasets[3].data = data.map(a => a.lightIntensity)
 
 		// Commit
