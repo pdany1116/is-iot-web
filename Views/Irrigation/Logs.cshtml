@@ -64,7 +64,7 @@
         filter = JSON.stringify(CreateFilter())
         $.ajax({
             type: "POST",
-            url: "/Valves/GetValveLogsByFilter",
+            url: "/Irrigation/GetValveLogsByFilter",
             data: filter,
             contentType: "application/json; charset=utf-8",
             dataType: "json",

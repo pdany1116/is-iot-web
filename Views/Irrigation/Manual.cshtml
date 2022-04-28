@@ -23,7 +23,8 @@
         </tr>
     </thead>
 </table>
-<link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+
+<link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css" rel="stylesheet" type="text/css"/>
 @section Scripts
 {
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
@@ -38,7 +39,7 @@
     function UpdateTable() {
         $.ajax({
             type: "POST",
-            url: "/Valves/GetValvesState",
+            url: "/Irrigation/GetValvesState",
             data: {},
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -57,7 +58,7 @@
         action = JSON.stringify(CreateValveAction(id, "TURN_ON"))
         $.ajax({
             type: "POST",
-            url: "/Valves/Action",
+            url: "/Irrigation/Action",
             data: action,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -79,7 +80,7 @@
         action = JSON.stringify(CreateValveAction(id, "TURN_OFF"))
         $.ajax({
             type: "POST",
-            url: "/Valves/Action",
+            url: "/Irrigation/Action",
             data: action,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -99,7 +100,7 @@
     $(document).on("click", ".btnTurnAllOff", function() {
         $.ajax({
             type: "POST",
-            url: "/Valves/TurnAllOff",
+            url: "/Irrigation/TurnAllOff",
             data: {},
             contentType: "application/json; charset=utf-8",
             dataType: "json",

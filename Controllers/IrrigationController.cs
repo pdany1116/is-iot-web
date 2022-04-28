@@ -16,13 +16,13 @@ using System.Threading.Tasks;
 namespace IsIoTWeb.Controllers
 {
     [Authorize]
-    public class ValvesController : Controller
+    public class IrrigationController : Controller
     {
         private IValveRepository _valveRepository;
         private IUserRepository _userRepository;
         private IMqttClient _mqttClient;
 
-        public ValvesController(IValveRepository valveRepository, IUserRepository userRepository, IMqttClient mqttClient)
+        public IrrigationController(IValveRepository valveRepository, IUserRepository userRepository, IMqttClient mqttClient)
         {
             _valveRepository = valveRepository;
             _userRepository = userRepository;
@@ -96,11 +96,16 @@ namespace IsIoTWeb.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Control()
+        public async Task<IActionResult> Manual()
         {
             await _mqttClient.Connect();
             RequestStatus();
             await _mqttClient.Subscribe("/valves/status/response/");
+            return View();
+        }
+
+        public IActionResult Automated()
+        {
             return View();
         }
 
@@ -122,7 +127,8 @@ namespace IsIoTWeb.Controllers
 
             ValveAction valveAction = new ValveAction(valveActionInput.ValveId,
                     valveActionInput.Action,
-                    _userRepository.GetLoggedUserByUsername(User.Identity.Name).Result.Id.ToString());
+                    _userRepository.GetLoggedUserByUsername(User.Identity.Name).Result.Id.ToString()
+                    );
 
             await _mqttClient.Publish($"/valves/control/", JsonConvert.SerializeObject(valveAction, new JsonSerializerSettings
             {
