@@ -11,17 +11,6 @@
     border-radius: 10px;
 }
 
-.input {
-    height: 45px;
-    font-size: 15px;
-    border: 2px solid #d1d3d4;
-    padding: 12px;
-    color: #111111;
-    font-weight: 500;
-    position: relative;
-    border-radius: 5px;
-}
-
 #oneTimeFilter:focus {
     outline: none;
     border-color: #0d75ec;

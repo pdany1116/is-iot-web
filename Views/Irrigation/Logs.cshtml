@@ -8,12 +8,18 @@
     <label>Enable Filters</label>
     <input type="checkbox" id="filterCheckbox" name="Filter" />
 </div>
+
 <div id="filterDiv">
     <div>
         <label>Valve ID</label>
         <input type="checkbox" id="valveIdCheckbox" name="valveIdCheckbox" />
-        <input type="number" id="valveId" />
     </div>
+
+    <div>
+        <input type="number" id="valveId" class="input" />
+    </div>
+    
+    <br />
 
     <div>
         <label>One Date Filter</label>
@@ -22,16 +28,18 @@
 
     <div id="oneDateFilterDiv">
         <label>In</label>
-        <input type="date" id="oneDateFilter" />
+        <input type="date" id="oneDateFilter"  class="input"/>
     </div>
 
     <div id="periodDateFilterDiv">
         <label>From</label>
-        <input type="date" id="fromDateFilter" />
+        <input type="date" id="fromDateFilter" class="input" />
         <label>To</label>
-        <input type="date" id="toDateFilter" />
+        <input type="date" id="toDateFilter" class="input" />
     </div>
 </div>
+
+<br />
 
 <table id="valveLogsTable">
     <thead>

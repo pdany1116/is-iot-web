@@ -3,37 +3,49 @@
     ViewData["Title"] = "Index";
 }
 <canvas id="percentage-line-chart" width="600" height="350"></canvas>
+
 <br />
+
 <canvas id="celsius-line-chart" width="600" height="350"></canvas>
+
 <br />
+
 <div>
     <label>Enable Filters</label>
     <input type="checkbox" id="filterCheckbox" name="Filter" />
 </div>
+
 <div id="filterDiv">
     <div>
         <label>Collector ID</label>
         <input type="checkbox" id="collectorIdCheckbox" name="CollectorIdCheckbox" />
-        <input type="text" id="collectorId" />
+     
     </div>
+	<div>
+		<input type="text" id="collectorId"  class="input"/>
+	</div>
 
-    <div>
+	<br />
+    
+	<div>
         <label>One Date Filter</label>
         <input type="checkbox" id="oneDateFilterCheckbox" name="OneDateFilter" checked />
     </div>
 
     <div id="oneDateFilterDiv">
         <label>In</label>
-        <input type="date" id="oneDateFilter" />
+        <input type="date" id="oneDateFilter"  class="input"/>
     </div>
 
     <div id="periodDateFilterDiv">
         <label>From</label>
-        <input type="date" id="fromDateFilter" />
+        <input type="date" id="fromDateFilter"  class="input"/>
         <label>To</label>
-        <input type="date" id="toDateFilter" />
+        <input type="date" id="toDateFilter"  class="input"/>
     </div>
 </div>
+
+<br />
 
 <table id="tableReadings">
     <thead>
