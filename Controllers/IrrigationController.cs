@@ -115,6 +115,12 @@ namespace IsIoTWeb.Controllers
         }
 
         [HttpPost]
+        public async Task<ActionResult> AddSchedule()
+        {
+            return StatusCode((int)HttpStatusCode.OK);
+        }
+
+        [HttpPost]
         public async Task<ActionResult> Action([FromBody] ValveActionInput valveActionInput)
         {
             await _mqttClient.Connect();
