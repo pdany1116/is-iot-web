@@ -3,3 +3,46 @@
 }
 
 <h3>Automated Irrigation</h3>
+
+<article class="widget">
+  <div class="weatherIcon"><i class="wi wi-day-cloudy"></i></div>
+  <div class="weatherInfo">
+    <div class="temperature"><span id="temperature"></span></div>
+    <div class="description">    
+      <div id="condition" class="weatherCondition"></div>
+      <div id="rain" class="place"></div>
+    </div>
+  </div>
+  <div id="date" class="date"></div>
+</article>
+
+<link rel="stylesheet" href="~/css/irrigation_automated.css" />
+
+@section Scripts
+{
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            type: "POST",
+            url: "/Irrigation/WeatherData",
+            data: {},
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: displayWeather,
+            failure: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
+            }
+        });
+    });
+
+    function displayWeather(response){
+        document.querySelector('#temperature').innerHTML = `${response.temperature}°`;
+        document.querySelector('#rain').innerHTML = `Precipitation: ${response.rainProbability}%`;
+        document.querySelector('#condition').innerHTML = `${response.condition}`;
+        document.querySelector('#date').innerHTML = `${response.date}`;
+    }
+</script>
+}
