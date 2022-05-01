@@ -25,13 +25,15 @@ namespace IsIoTWeb.Controllers
         private IUserRepository _userRepository;
         private IMqttClient _mqttClient;
         private IConfiguration _configuration;
+        private IIrrigationRepository _irrigationRepository;
 
-        public IrrigationController(IValveRepository valveRepository, IUserRepository userRepository, IMqttClient mqttClient, IConfiguration configuration)
+        public IrrigationController(IValveRepository valveRepository, IUserRepository userRepository, IMqttClient mqttClient, IConfiguration configuration, IIrrigationRepository irrigationRepository)
         {
             _valveRepository = valveRepository;
             _userRepository = userRepository;
             _mqttClient = mqttClient;
             _configuration = configuration;
+            _irrigationRepository = irrigationRepository;
         }
 
         public IActionResult Index()
@@ -240,6 +242,33 @@ namespace IsIoTWeb.Controllers
         private async void RequestStatus()
         {
             await _mqttClient.Publish($"/valves/status/request/", "{}");
+        }
+
+        [HttpPost]
+        public ActionResult GetIrrigationLogsByFilter([FromBody] IrrigationLogsFilter? filter)
+        {
+            List<IrrigationLog> irrigationLogs = _irrigationRepository.GetAll().Result.ToList();
+
+            if (filter == null)
+            {
+                return Json(irrigationLogs);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(filter.OneDate))
+                {
+                    irrigationLogs = irrigationLogs.Where(x => x.Date() == filter.OneDate).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(filter.FromDate) && !string.IsNullOrEmpty(filter.ToDate))
+                {
+                    DateTime fromDatetime = DateTime.Parse(filter.FromDate);
+                    DateTime toDatetime = DateTime.Parse(filter.ToDate);
+                    irrigationLogs = irrigationLogs.Where(x => DateTime.Parse(x.Date()) >= fromDatetime && DateTime.Parse(x.Date()) < toDatetime).ToList();
+                }
+            }
+
+            return Json(irrigationLogs);
         }
     }
 }
