@@ -121,7 +121,7 @@ namespace IsIoTWeb.Controllers
         {
             WeatherData weatherData = new WeatherData();
             var apiKey = _configuration.GetSection("AccuWeather").GetSection("ApiKey").Value;
-            var location = "240499";
+            var location = "1161143";
             var url = $"https://dataservice.accuweather.com/forecasts/v1/hourly/1hour/{location}?apikey={apiKey}&details=true&metric=true";
             try
             {
