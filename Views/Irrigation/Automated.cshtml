@@ -159,13 +159,36 @@ function OnSuccess(response) {
 			]
 		});
 
+		FillTimeIntervalsWithEmtpyData(response)
+
 		if (window.irrigationTimeChartInit === true) {
-			CreateIrrigationTimeChart(response)
+			CreateIrrigationTimeChart(FillTimeIntervalsWithEmtpyData(response))
 			window.irrigationTimeChartInit = false
 		}
 
-		UpdateIrrigationTimeChartData(window.irrigationTimeChart, response)
+		UpdateIrrigationTimeChartData(window.irrigationTimeChart, FillTimeIntervalsWithEmtpyData(response))
 	};
+
+	function FillTimeIntervalsWithEmtpyData(data) {
+		var dataParsed = [];
+		var lastTime = data[0].timestamp;
+		var timeStep = 300;
+		for (var i = 0; i < data.length; i++) {
+			var curTime = data[i].timestamp;
+			if (curTime > lastTime + timeStep) {
+				for (var time = lastTime + timeStep; time < curTime; time += timeStep) {
+					var emptyData = {
+						timestamp: time,
+						irrigationTime: 0
+					}
+					dataParsed.push(emptyData);
+				}
+			}
+			dataParsed.push(data[i]);
+			lastTime = curTime;
+		}
+		return dataParsed
+	}
 
 	function CreateIrrigationTimeChart(incomingData) {
 		// Draw the chart
