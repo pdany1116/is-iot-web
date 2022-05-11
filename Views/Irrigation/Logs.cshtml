@@ -93,10 +93,7 @@
         $("#valveLogsTable").DataTable({
             destroy: true,
             bLengthChange: true,
-            lengthMenu: [
-                [10, -1],
-                [10, "All"]
-            ],
+            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "All"]],
             bFilter: true,
             bSort: true,
             stateSave: true,

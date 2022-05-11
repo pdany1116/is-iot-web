@@ -3,3 +3,57 @@
 }
 
 <h3>Irrigation Configuration</h3>
+
+<br />
+
+<fieldset>
+    <legend>Select Irrigation Mode</legend>
+
+    <div>
+      <input type="radio" id="irrigationManual" name="irrigationMode" value="Manual">
+      <label for="irrigationManual">Manual</label>
+    </div>
+
+    <div>
+      <input type="radio" id="irrigationAuto" name="irrigationMode" value="Automated" checked>
+      <label for="irrigationAuto">Automated</label>
+    </div>
+</fieldset>
+
+<br />
+
+<fieldset>
+    <legend>Rain Probability threshold</legend>
+    <div>
+	    <input type="text" id="rainProbThreshold" class="input"/>
+    </div>
+</fieldset>
+
+<br />
+
+<fieldset>
+    <legend>Import Fuzzy configuration file</legend>
+    <div>
+        <input type="file" id="fuzzyConfigFile" name="FuzzyConfigFile">
+    </div>
+</fieldset>
+
+<br />
+
+<fieldset>
+    <legend>Select Rain Probability decision</legend>
+
+    <div>
+      <input type="radio" id="rpDecisionFailCounter" name="rbDecision" value="Fail Counter" checked>
+      <label for="rpDecisionFailCounter">Fail Counter</label>
+    </div>
+
+    <div>
+      <input type="radio" id="rbDecisionUnderThreshold" name="rbDecision" value="Under Threshold">
+      <label for="rbDecisionUnderThreshold">Under Threshold</label>
+    </div>
+</fieldset>
+
+<button type="button" id="submitConfiguration" class="btn btn-primary">Submit</button>
+
+<link rel="stylesheet" href="~/css/irrigation_configure.css" />
