@@ -109,10 +109,7 @@
 		$("#tableReadings").DataTable({
 			destroy: true,
 			bLengthChange: true,
-			lengthMenu: [
-				[10, -1],
-				[10, "All"]
-			],
+			lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "All"]],
 			bFilter: true,
 			bSort: true,
 			stateSave: true,
@@ -188,30 +185,33 @@
 					data: incomingData.map(a => a.soilMoisture[0]),
 					label: "Soil Moisture [0]",
 					borderColor: "#3e95cd",
+					backgroundColor: "#3e95cd",
 					borderWidth: 4,
-					fill: true,
+					fill: false,
 					tension: 0.5
 				}, {
 					data: incomingData.map(a => a.soilMoisture[1]),
 					label: "Soil Moisture [1]",
 					borderColor: "#8e5ea2",
+					backgroundColor: "#8e5ea2",
 					borderWidth: 4,
-
-					fill: true,
+					fill: false,
 					tension: 0.5
 				}, {
 					data: incomingData.map(a => a.airHumidity),
 					label: "Air Humidity",
 					borderColor: "#e8c3b9",
+					backgroundColor: "#e8c3b9",
 					borderWidth: 4,
-					fill: true,
+					fill: false,
 					tension: 0.5
 				}, {
 					data: incomingData.map(a => a.lightIntensity),
 					label: "Light Intensity",
 					borderColor: "#c45850",
+					backgroundColor: "#c45850",
 					borderWidth: 4,
-					fill: true,
+					fill: false,
 					tension: 0.5
 				}]
 			},
@@ -233,6 +233,11 @@
 								size: 15,
 								weight: 'bold'
 							}
+						}
+					},
+					tooltip: {
+						bodyFont: {
+							size: 15
 						}
 					}
 				},
@@ -291,6 +296,7 @@
 					data: incomingData.map(a => a.airTemperature),
 					label: "Air Temperature",
 					borderColor: "#3cba9f",
+					backgroundColor: "#3cba9f",
 					borderWidth: 4,
 					fill: false,
 					tension: 0.5
@@ -314,6 +320,11 @@
 								size: 15,
 								weight: 'bold'
 							}
+						}
+					},
+					tooltip: {
+						bodyFont: {
+							size: 15
 						}
 					}
 				},
