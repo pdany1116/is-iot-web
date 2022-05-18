@@ -16,6 +16,18 @@
     border-color: #0d75ec;
 }
 
+#oneDateFilter {
+    width: 140px;
+}
+
+#fromDateFilter {
+    width: 140px;
+}
+
+#toDateFilter {
+    width: 140px;
+}
+
 #durationFilter:focus {
     outline: none;
     border-color: #0d75ec;
