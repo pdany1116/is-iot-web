@@ -16,32 +16,18 @@
 </div>
 
 <div id="filterDiv">
-    <div>
-        <label>Collector ID</label>
-        <input type="checkbox" id="collectorIdCheckbox" name="CollectorIdCheckbox" />
-     
-    </div>
 	<div>
+		<label>Collector ID</label>
 		<input type="text" id="collectorId"  class="input"/>
 	</div>
 
 	<br />
     
-	<div>
-        <label>One Date Filter</label>
-        <input type="checkbox" id="oneDateFilterCheckbox" name="OneDateFilter" checked />
-    </div>
-
-    <div id="oneDateFilterDiv">
-        <label>In</label>
-        <input type="date" id="oneDateFilter"  class="input"/>
-    </div>
-
     <div id="periodDateFilterDiv">
         <label>From</label>
-        <input type="date" id="fromDateFilter"  class="input"/>
+        <input type="datetime-local" id="fromDateFilter"  class="input"/>
         <label>To</label>
-        <input type="date" id="toDateFilter"  class="input"/>
+        <input type="datetime-local" id="toDateFilter"  class="input"/>
     </div>
 </div>
 
@@ -84,8 +70,8 @@
 	window.percentageChart = {}
 	window.percentageChartInit = true
 	window.celsiusChartInit = true
-	$(function worker() {
-		filter = JSON.stringify(CreateFilter())
+
+	function fetchData(filter) {
 		$.ajax({
 			type: "POST",
 			url: "/Readings/GetReadingsByFilter",
@@ -98,12 +84,9 @@
 			},
 			error: function(response) {
 				alert(response.d);
-			},
-			complete: function() {
-				setTimeout(worker, 1000);
 			}
 		});
-	});
+	};
 
 	function OnSuccess(response) {
 		$("#tableReadings").DataTable({
@@ -428,35 +411,32 @@
 		if ($("#filterCheckbox").is(":checked") === false) {
 			return filter;
 		}
-		if ($("#collectorIdCheckbox").is(":checked")) {
-			filter.collectorId = $("#collectorId").val();
-		} else {
-			filter.collectorId = null;
+		
+		filter.collectorId = $("#collectorId").val();
+
+		fromDate = $("#fromDateFilter").val()
+		toDate = $("#toDateFilter").val()
+		filter.fromDate = fromDate
+		filter.toDate = toDate
+		
+		filter.pageSize = 1000
+
+		if (fromDate != "" && toDate != "") {
+			filter.pageSize = -1
 		}
-		if ($("#oneDateFilterCheckbox").is(":checked")) {
-			date = $("#oneDateFilter").val()
-			if (date !== "") {
-				filter.oneDate = date
-			} else {
-				filter.oneDate = null;
-			}
-			filter.fromDate = null
-			filter.toDate = null
-		} else {
-			filter.oneDate = null;
-			fromDate = $("#fromDateFilter").val()
-			toDate = $("#toDateFilter").val()
-			filter.fromDate = fromDate
-			filter.toDate = toDate
-		}
+
 		return filter
-	};
-</script>
-<script type="text/javascript">
+	}
+
+	$(function() {
+		$('#filterDiv').change(function() {
+			fetchData(JSON.stringify(CreateFilter()))
+		})
+	})
+
     $(document).ready(function() {
     	$("#filterDiv").hide();
-    	$("#oneDateFilterDiv").show();
-    	$("#periodDateFilterDiv").hide();
+
     	$('#filterCheckbox').click(function() {
     		if ($(this).is(":checked")) {
     			$("#filterDiv").show();
@@ -464,15 +444,9 @@
     			$("#filterDiv").hide();
     		}
     	})
-    	$('#oneDateFilterCheckbox').click(function() {
-    		if ($(this).is(":checked")) {
-    			$("#oneDateFilterDiv").show();
-    			$("#periodDateFilterDiv").hide();
-    		} else {
-    			$("#oneDateFilterDiv").hide();
-    			$("#periodDateFilterDiv").show();
-    		}
-    	})
+		
+		fetchData(JSON.stringify(CreateFilter()))
+		setInterval(() => fetchData(JSON.stringify(CreateFilter())), 5000);
     });
 </script>
 }

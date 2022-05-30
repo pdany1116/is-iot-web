@@ -1,5 +1,8 @@
 ﻿using IsIoTWeb.Context;
 using IsIoTWeb.Models;
+using MongoDB.Driver;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IsIoTWeb.Repository
@@ -22,6 +25,47 @@ namespace IsIoTWeb.Repository
         public override async Task Delete(string id)
         {
             await Task.CompletedTask;
+        }
+
+        public async Task<IEnumerable<Reading>> GetAllByFilter(ReadingFilter filter)
+        {
+            var descending = Builders<Reading>.Sort.Descending("timestamp");
+            var mongoFilter = Builders<Reading>.Filter.Empty;
+            int pageSize = 1000;
+
+            if (filter != null)
+            {
+                if (filter.PageSize != null)
+                {
+                    pageSize = (int)filter.PageSize;
+                }
+
+                if (!string.IsNullOrEmpty(filter.CollectorId))
+                {
+                    mongoFilter &= Builders<Reading>.Filter.Eq("collectorId", filter.CollectorId);
+                }
+
+                if (!string.IsNullOrEmpty(filter.FromDate) && !string.IsNullOrEmpty(filter.ToDate))
+                {
+                    var fromDatetime = new DateTimeOffset(DateTime.Parse(filter.FromDate)).ToUnixTimeSeconds();
+                    var toDatetime = new DateTimeOffset(DateTime.Parse(filter.ToDate)).ToUnixTimeSeconds();
+                    mongoFilter &= Builders<Reading>.Filter.Gte("timestamp", fromDatetime);
+                    mongoFilter &= Builders<Reading>.Filter.Lte("timestamp", toDatetime);
+                }
+            }
+
+            List<Reading> data = new List<Reading>();
+            if (pageSize == -1)
+            {
+                data = await _dbSet.Find(mongoFilter).Sort(descending).ToListAsync();
+            }
+            else
+            {
+                data = await _dbSet.Find(mongoFilter).Sort(descending).Limit(pageSize).ToListAsync();
+            }
+
+            data.Reverse();
+            return data;
         }
     }
 }

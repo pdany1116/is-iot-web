@@ -96,3 +96,11 @@ body {
     position: relative;
     border-radius: 5px;
 }
+
+#fromDateFilter {
+    width: 180px;
+}
+
+#toDateFilter {
+    width: 180px;
+}
