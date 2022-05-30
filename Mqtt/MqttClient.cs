@@ -22,7 +22,7 @@ namespace IsIoTWeb.Mqtt
             _mqttClient = new MqttFactory().CreateMqttClient();
             _mqttClientOptions = new MqttClientOptionsBuilder()
                 .WithTcpServer(_mqttSettings.BrokerHost, _mqttSettings.BrokerPort)
-                //.WithCredentials(_mqttSettings.User, _mqttSettings.Password)
+                .WithCredentials(_mqttSettings.User, _mqttSettings.Password)
                 .Build();
         }
 
