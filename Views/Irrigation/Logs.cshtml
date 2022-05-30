@@ -12,30 +12,16 @@
 <div id="filterDiv">
     <div>
         <label>Valve ID</label>
-        <input type="checkbox" id="valveIdCheckbox" name="valveIdCheckbox" />
-    </div>
-
-    <div>
         <input type="number" id="valveId" class="input" />
     </div>
     
     <br />
 
-    <div>
-        <label>One Date Filter</label>
-        <input type="checkbox" id="oneDateFilterCheckbox" name="OneDateFilter" checked />
-    </div>
-
-    <div id="oneDateFilterDiv">
-        <label>In</label>
-        <input type="date" id="oneDateFilter"  class="input"/>
-    </div>
-
     <div id="periodDateFilterDiv">
         <label>From</label>
-        <input type="date" id="fromDateFilter" class="input" />
+        <input type="datetime-local" id="fromDateFilter" class="input" />
         <label>To</label>
-        <input type="date" id="toDateFilter" class="input" />
+        <input type="datetime-local" id="toDateFilter" class="input" />
     </div>
 </div>
 
@@ -68,26 +54,22 @@
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
 <script type="text/javascript">
-    $(function worker() {
-        filter = JSON.stringify(CreateFilter())
-        $.ajax({
-            type: "POST",
-            url: "/Irrigation/GetValveLogsByFilter",
-            data: filter,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: OnSuccess,
-            failure: function(response) {
-                alert(response.d);
-            },
-            error: function(response) {
-                alert(response.d);
-            },
-            complete: function() {
-                setTimeout(worker, 1000);
-            }
-        });
-    });
+    function fetchData(filter) {
+		$.ajax({
+			type: "POST",
+			url: "/Irrigation/GetValveLogsByFilter",
+			data: filter,
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			success: OnSuccess,
+			failure: function(response) {
+				alert(response.d);
+			},
+			error: function(response) {
+				alert(response.d);
+			}
+		});
+	};
 
     function OnSuccess(response) {
         $("#valveLogsTable").DataTable({
@@ -132,36 +114,30 @@
         if ($("#filterCheckbox").is(":checked") === false) {
             return filter;
         }
-        if ($("#valveIdCheckbox").is(":checked")) {
-            filter.valveId = parseInt($("#valveId").val());
-        } else {
-            filter.valveId = null;
-        }
-        if ($("#oneDateFilterCheckbox").is(":checked")) {
-            date = $("#oneDateFilter").val()
-            if (date !== "") {
-                filter.oneDate = date
-            } else {
-                filter.oneDate = null;
-            }
-            filter.fromDate = null
-            filter.toDate = null
-        } else {
-            filter.oneDate = null;
-            fromDate = $("#fromDateFilter").val()
-            toDate = $("#toDateFilter").val()
-            filter.fromDate = fromDate
-            filter.toDate = toDate
+        
+        filter.valveId = parseInt($("#valveId").val());
+        
+        fromDate = $("#fromDateFilter").val()
+        toDate = $("#toDateFilter").val()
+        filter.fromDate = fromDate
+        filter.toDate = toDate
+
+        filter.pageSize = 1000
+        if (fromDate != "" && toDate != "") {
+	        filter.pageSize = -1
         }
         return filter
     };
 
-</script>
-<script type="text/javascript">
+    $(function() {
+		$('#filterDiv').change(function() {
+			fetchData(JSON.stringify(CreateFilter()))
+		})
+	})
+
     $(document).ready(function() {
         $("#filterDiv").hide();
-        $("#oneDateFilterDiv").show();
-        $("#periodDateFilterDiv").hide();
+        
         $('#filterCheckbox').click(function() {
             if ($(this).is(":checked")) {
                 $("#filterDiv").show();
@@ -169,15 +145,9 @@
                 $("#filterDiv").hide();
             }
         })
-        $('#oneDateFilterCheckbox').click(function() {
-            if ($(this).is(":checked")) {
-                $("#oneDateFilterDiv").show();
-                $("#periodDateFilterDiv").hide();
-            } else {
-                $("#oneDateFilterDiv").hide();
-                $("#periodDateFilterDiv").show();
-            }
-        })
+
+        fetchData(JSON.stringify(CreateFilter()))
+		setInterval(() => fetchData(JSON.stringify(CreateFilter())), 5000);
     });
 </script>
 }
