@@ -45,31 +45,7 @@ namespace IsIoTWeb.Controllers
         public async Task<ActionResult> GetValveLogsByFilter([FromBody] ValveLogsFilter? filter)
         {
             await _mqttClient.Connect();
-            List<ValveLog> valvesLogs = _valveRepository.GetAll().Result.ToList();
-
-            if (filter == null)
-            {
-                return Json(valvesLogs);
-            }
-            else
-            {
-                if (filter.ValveId != null)
-                {
-                    valvesLogs = valvesLogs.Where(x => x.ValveId == filter.ValveId).ToList();
-                }
-
-                if (!string.IsNullOrEmpty(filter.OneDate))
-                {
-                    valvesLogs = valvesLogs.Where(x => x.Date() == filter.OneDate).ToList();
-                }
-
-                if (!string.IsNullOrEmpty(filter.FromDate) && !string.IsNullOrEmpty(filter.ToDate))
-                {
-                    DateTime fromDatetime = DateTime.Parse(filter.FromDate);
-                    DateTime toDatetime = DateTime.Parse(filter.ToDate);
-                    valvesLogs = valvesLogs.Where(x => DateTime.Parse(x.Date()) >= fromDatetime && DateTime.Parse(x.Date()) < toDatetime).ToList();
-                }
-            }
+            List<ValveLog> valvesLogs = _valveRepository.GetAllByFilter(filter).Result.ToList();
 
             List<ValveLogDisplay> valvesLogsDisplay = new List<ValveLogDisplay>();
             var users = await _userRepository.GetAll();
@@ -128,23 +104,23 @@ namespace IsIoTWeb.Controllers
                 using (HttpClient client = new HttpClient())
                 {
                     // TODO: Remove comments. Used hard coded response to stop consuming api in development.
-                    //HttpResponseMessage response = await client.GetAsync(url);
-                    //var data_str = response.Content.ReadAsStringAsync().Result;
-                    var data_str = "[{\"DateTime\":\"2022-04-30T16:00:00-05:00\",\"EpochDateTime\":1651352400,\"WeatherIcon\":1,\"IconPhrase\":\"Cloudy\",\"HasPrecipitation\":false,\"IsDaylight\":true,\"Temperature\":{\"Value\":15.7,\"Unit\":\"C\",\"UnitType\":17},\"RealFeelTemperature\":{\"Value\":30.9,\"Unit\":\"C\",\"UnitType\":17,\"Phrase\":\"Very Warm\"},\"RealFeelTemperatureShade\":{\"Value\":27.3,\"Unit\":\"C\",\"UnitType\":17,\"Phrase\":\"Very Warm\"},\"WetBulbTemperature\":{\"Value\":13.9,\"Unit\":\"C\",\"UnitType\":17},\"DewPoint\":{\"Value\":1.1,\"Unit\":\"C\",\"UnitType\":17},\"Wind\":{\"Speed\":{\"Value\":11.1,\"Unit\":\"km/h\",\"UnitType\":7},\"Direction\":{\"Degrees\":92,\"Localized\":\"E\",\"English\":\"E\"}},\"WindGust\":{\"Speed\":{\"Value\":27.8,\"Unit\":\"km/h\",\"UnitType\":7}},\"RelativeHumidity\":17,\"IndoorRelativeHumidity\":17,\"Visibility\":{\"Value\":16.1,\"Unit\":\"km\",\"UnitType\":6},\"Ceiling\":{\"Value\":9144.0,\"Unit\":\"m\",\"UnitType\":5},\"UVIndex\":5,\"UVIndexText\":\"Moderate\",\"PrecipitationProbability\":0,\"ThunderstormProbability\":0,\"RainProbability\":32,\"SnowProbability\":0,\"IceProbability\":0,\"TotalLiquid\":{\"Value\":0.0,\"Unit\":\"mm\",\"UnitType\":3},\"Rain\":{\"Value\":0.0,\"Unit\":\"mm\",\"UnitType\":3},\"Snow\":{\"Value\":0.0,\"Unit\":\"cm\",\"UnitType\":4},\"Ice\":{\"Value\":0.0,\"Unit\":\"mm\",\"UnitType\":3},\"CloudCover\":3,\"Evapotranspiration\":{\"Value\":0.5,\"Unit\":\"mm\",\"UnitType\":3},\"SolarIrradiance\":{\"Value\":1305.4,\"Unit\":\"W/m²\",\"UnitType\":33},\"MobileLink\":\"http://www.accuweather.com/en/mx/pozas-de-santa-ana/240499/hourly-weather-forecast/240499?day=1&hbhhour=16&unit=c&lang=en-us\",\"Link\":\"http://www.accuweather.com/en/mx/pozas-de-santa-ana/240499/hourly-weather-forecast/240499?day=1&hbhhour=16&unit=c&lang=en-us\"}]";
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    var data_str = response.Content.ReadAsStringAsync().Result;
+                    //var data_str = "[{\"DateTime\":\"2022-05-12T16:00:00-05:00\",\"EpochDateTime\":1651352400,\"WeatherIcon\":1,\"IconPhrase\":\"Cloudy\",\"HasPrecipitation\":false,\"IsDaylight\":true,\"Temperature\":{\"Value\":15.7,\"Unit\":\"C\",\"UnitType\":17},\"RealFeelTemperature\":{\"Value\":30.9,\"Unit\":\"C\",\"UnitType\":17,\"Phrase\":\"Very Warm\"},\"RealFeelTemperatureShade\":{\"Value\":27.3,\"Unit\":\"C\",\"UnitType\":17,\"Phrase\":\"Very Warm\"},\"WetBulbTemperature\":{\"Value\":13.9,\"Unit\":\"C\",\"UnitType\":17},\"DewPoint\":{\"Value\":1.1,\"Unit\":\"C\",\"UnitType\":17},\"Wind\":{\"Speed\":{\"Value\":11.1,\"Unit\":\"km/h\",\"UnitType\":7},\"Direction\":{\"Degrees\":92,\"Localized\":\"E\",\"English\":\"E\"}},\"WindGust\":{\"Speed\":{\"Value\":27.8,\"Unit\":\"km/h\",\"UnitType\":7}},\"RelativeHumidity\":17,\"IndoorRelativeHumidity\":17,\"Visibility\":{\"Value\":16.1,\"Unit\":\"km\",\"UnitType\":6},\"Ceiling\":{\"Value\":9144.0,\"Unit\":\"m\",\"UnitType\":5},\"UVIndex\":5,\"UVIndexText\":\"Moderate\",\"PrecipitationProbability\":0,\"ThunderstormProbability\":0,\"RainProbability\":32,\"SnowProbability\":0,\"IceProbability\":0,\"TotalLiquid\":{\"Value\":0.0,\"Unit\":\"mm\",\"UnitType\":3},\"Rain\":{\"Value\":0.0,\"Unit\":\"mm\",\"UnitType\":3},\"Snow\":{\"Value\":0.0,\"Unit\":\"cm\",\"UnitType\":4},\"Ice\":{\"Value\":0.0,\"Unit\":\"mm\",\"UnitType\":3},\"CloudCover\":3,\"Evapotranspiration\":{\"Value\":0.5,\"Unit\":\"mm\",\"UnitType\":3},\"SolarIrradiance\":{\"Value\":1305.4,\"Unit\":\"W/m²\",\"UnitType\":33},\"MobileLink\":\"http://www.accuweather.com/en/mx/pozas-de-santa-ana/240499/hourly-weather-forecast/240499?day=1&hbhhour=16&unit=c&lang=en-us\",\"Link\":\"http://www.accuweather.com/en/mx/pozas-de-santa-ana/240499/hourly-weather-forecast/240499?day=1&hbhhour=16&unit=c&lang=en-us\"}]";
 
                     dynamic data = JObject.Parse(JArray.Parse(data_str)[0].ToString());
 
-                    //if (response.IsSuccessStatusCode)
-                    //{
+                    if (response.IsSuccessStatusCode)
+                    {
                         weatherData.Temperature = data.Temperature.Value.Value;
                         weatherData.RainProbability = data.RainProbability.Value;
                         weatherData.Condition = data.IconPhrase.Value;
                         weatherData.Date = data.DateTime.Value.ToShortDateString();
                         return Json(weatherData);
-                    //}
+                    }
                 }
             }
-            catch (Exception e) { }
+            catch (Exception) { }
 
             weatherData.Condition = "unknown";
             return Json(weatherData);
@@ -222,7 +198,7 @@ namespace IsIoTWeb.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> GetValvesState()
+        public JsonResult GetValvesState()
         {
             RequestStatus();
             return Json(GetLastValvesState());
@@ -247,28 +223,7 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         public ActionResult GetIrrigationLogsByFilter([FromBody] IrrigationLogsFilter? filter)
         {
-            List<IrrigationLog> irrigationLogs = _irrigationRepository.GetAll().Result.ToList();
-
-            if (filter == null)
-            {
-                return Json(irrigationLogs);
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(filter.OneDate))
-                {
-                    irrigationLogs = irrigationLogs.Where(x => x.Date() == filter.OneDate).ToList();
-                }
-
-                if (!string.IsNullOrEmpty(filter.FromDate) && !string.IsNullOrEmpty(filter.ToDate))
-                {
-                    DateTime fromDatetime = DateTime.Parse(filter.FromDate);
-                    DateTime toDatetime = DateTime.Parse(filter.ToDate);
-                    irrigationLogs = irrigationLogs.Where(x => DateTime.Parse(x.Date()) >= fromDatetime && DateTime.Parse(x.Date()) < toDatetime).ToList();
-                }
-            }
-
-            return Json(irrigationLogs);
+            return Json(_irrigationRepository.GetAllByFilter(filter).Result.ToList());
         }
     }
 }

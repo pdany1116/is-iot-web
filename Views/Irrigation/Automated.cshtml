@@ -26,16 +26,6 @@
 </div>
 
 <div id="filterDiv">
-	<div>
-        <label>One Date Filter</label>
-        <input type="checkbox" id="oneDateFilterCheckbox" name="OneDateFilter" checked />
-    </div>
-
-    <div id="oneDateFilterDiv">
-        <label>In</label>
-        <input type="date" id="oneDateFilter"  class="input"/>
-    </div>
-
     <div id="periodDateFilterDiv">
         <label>From</label>
         <input type="date" id="fromDateFilter"  class="input"/>
@@ -80,29 +70,12 @@
     window.percentageChart = {}
 	window.percentageChartInit = true
 	window.irrigationTimeChartInit = true
-    $(document).ready(function () {
-        $.ajax({
-            type: "POST",
-            url: "/Irrigation/WeatherData",
-            data: {},
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: displayWeather,
-            failure: function(jqXHR, textStatus, errorThrown) {
-                alert(jqXHR.responseText);
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                alert(jqXHR.responseText);
-            }
-        });
-    });
 
-	$(function worker() {
-		//filter = JSON.stringify(CreateFilter())
+	function fetchData(filter) {
 		$.ajax({
 			type: "POST",
 			url: "/Irrigation/GetIrrigationLogsByFilter",
-			data: JSON.stringify(new Object()),
+			data: filter,
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
 			success: OnSuccess,
@@ -111,14 +84,11 @@
 			},
 			error: function(response) {
 				alert(response.d);
-			},
-			complete: function() {
-				setTimeout(worker, 1000);
 			}
 		});
-	});
+	};
 
-function OnSuccess(response) {
+	function OnSuccess(response) {
 		$("#tableIrrigation").DataTable({
 			destroy: true,
 			bLengthChange: true,
@@ -306,22 +276,17 @@ function OnSuccess(response) {
 			return filter;
 		}
 
-		if ($("#oneDateFilterCheckbox").is(":checked")) {
-			date = $("#oneDateFilter").val()
-			if (date !== "") {
-				filter.oneDate = date
-			} else {
-				filter.oneDate = null;
-			}
-			filter.fromDate = null
-			filter.toDate = null
-		} else {
-			filter.oneDate = null;
-			fromDate = $("#fromDateFilter").val()
-			toDate = $("#toDateFilter").val()
-			filter.fromDate = fromDate
-			filter.toDate = toDate
+		fromDate = $("#fromDateFilter").val()
+		toDate = $("#toDateFilter").val()
+		filter.fromDate = fromDate
+		filter.toDate = toDate		
+
+		filter.pageSize = 1000
+
+		if (fromDate != "" && toDate != "") {
+			filter.pageSize = -1
 		}
+
 		return filter
 	};
 
@@ -331,12 +296,31 @@ function OnSuccess(response) {
         document.querySelector('#condition').innerHTML = `${response.condition}`;
         document.querySelector('#date').innerHTML = `${response.date}`;
     }
-</script>
-<script type="text/javascript">
+
+	$(function() {
+		$('#filterDiv').change(function() {
+			fetchData(JSON.stringify(CreateFilter()))
+		})
+	})
+
     $(document).ready(function() {
+		$.ajax({
+            type: "POST",
+            url: "/Irrigation/WeatherData",
+            data: {},
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: displayWeather,
+            failure: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText);
+            }
+        });
+
     	$("#filterDiv").hide();
-    	$("#oneDateFilterDiv").show();
-    	$("#periodDateFilterDiv").hide();
+
     	$('#filterCheckbox').click(function() {
     		if ($(this).is(":checked")) {
     			$("#filterDiv").show();
@@ -344,15 +328,9 @@ function OnSuccess(response) {
     			$("#filterDiv").hide();
     		}
     	})
-    	$('#oneDateFilterCheckbox').click(function() {
-    		if ($(this).is(":checked")) {
-    			$("#oneDateFilterDiv").show();
-    			$("#periodDateFilterDiv").hide();
-    		} else {
-    			$("#oneDateFilterDiv").hide();
-    			$("#periodDateFilterDiv").show();
-    		}
-    	})
+		
+		fetchData(JSON.stringify(CreateFilter()))
+		setInterval(() => fetchData(JSON.stringify(CreateFilter())), 5000);
     });
 </script>
 }
