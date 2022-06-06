@@ -99,7 +99,7 @@
 			bPaginate: true,
 			searching: false,
 			order: [
-				[1, 'desc']
+				[1, 'asc']
 			],
 			data: response,
 			columns: [
@@ -162,15 +162,20 @@
 
 	function CreateIrrigationTimeChart(incomingData) {
 		// Draw the chart
+		
+		timestamps = GetTimestampsAsDates(incomingData.map(a => a.timestamp))
+		data = incomingData.map(a => a.irrigationTime)
+		colors = GetColors(incomingData)
+
 		window.irrigationTimeChart = new Chart(document.getElementById("irrigation-time-chart"), {
 			type: 'bar',
 			data: {
-				labels: GetTimestampsAsDates(incomingData.map(a => a.timestamp)),
+				labels: timestamps,
 				datasets: [{
-					data: incomingData.map(a => a.irrigationTime),
+					data: data,
 					label: "Irrigation Time",
-					borderColor: "#3cba9f",
-					backgroundColor: "#3cba9f",
+					borderColor: colors,				
+					backgroundColor: colors,
 					borderWidth: 4,
 					fill: false,
 					tension: 0.5
@@ -243,6 +248,21 @@
 		});
 	}
 
+	function GetColors(irrigations) {
+		let colors = []
+		irrigations.forEach((irrigation) => {
+			if (irrigation.irrigationTime != 0) {
+				if (irrigation.completed == false)  {
+					colors.push("#ff0000")
+				}
+			}
+			else {
+				colors.push("#3cba9f")
+			}
+		})
+		return colors
+	}
+
 	function GetTimestampsAsDates(timestamps) {
 		let dates = []
 		timestamps.forEach((timestamp) => {
@@ -258,6 +278,8 @@
 		// Update labels with the newest dates
 		chart.data.labels = GetTimestampsAsDates(data.map(a => a.timestamp))
 
+		colors = GetColors(data)
+
 		// Clear datasets
 		chart.data.datasets.forEach((dataset) => {
 			dataset.data = []
@@ -265,6 +287,8 @@
 
 		// Update labels with the newest dates
 		chart.data.datasets[0].data = data.map(a => a.irrigationTime)
+		chart.data.datasets[0].borderColor = colors
+		chart.data.datasets[0].backgroundColor = colors
 
 		// Commit
 		chart.update();
