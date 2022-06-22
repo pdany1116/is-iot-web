@@ -104,3 +104,30 @@ body {
 #toDateFilter {
     width: 180px;
 }
+
+.img_nursery {
+    width: 100%;
+    height: auto;
+}
+
+.img_nursery_container {
+    position: relative;
+    text-align: center;
+    color: white;
+}
+.centered {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 600;
+}
+
+.centered-p1 {
+    font-size: 2vw;
+    text-shadow: 0 0 10px black;
+}
+.centered-p2 {
+    font-size: 1vw;
+    text-shadow: 0 0 10px black;
+}
