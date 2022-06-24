@@ -28,5 +28,11 @@ namespace IsIoTWeb.Controllers
         {
             return Json(_readingRepository.GetAllByFilter(filter).Result.ToList());
         }
+
+        [HttpGet]
+        public ActionResult Details(string id)
+        {
+            return View(new ReadingFilter() { CollectorId = id });
+        }
     }
 }

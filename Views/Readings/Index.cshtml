@@ -2,14 +2,6 @@
 @{
     ViewData["Title"] = "Index";
 }
-<canvas id="percentage-line-chart" width="600" height="350"></canvas>
-
-<br />
-
-<canvas id="celsius-line-chart" width="600" height="350"></canvas>
-
-<br />
-
 <div>
     <label>Enable Filters</label>
     <input type="checkbox" id="filterCheckbox" name="Filter" />
@@ -30,7 +22,6 @@
         <input type="datetime-local" id="toDateFilter"  class="input"/>
     </div>
 </div>
-
 <br />
 
 <table id="tableReadings">
@@ -62,14 +53,13 @@
 
 @section Scripts
 {
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 <script type="text/javascript">
-	window.percentageChart = {}
-	window.percentageChartInit = true
-	window.celsiusChartInit = true
+	$(document).on("click", ".btnDetails", function () {
+        var id = $(this).attr("id");
+        window.location.href = '/Readings/Details/' + id
+    })
 
 	function fetchData(filter) {
 		$.ajax({
@@ -103,7 +93,10 @@
 			],
 			data: response,
 			columns: [{
-					data: 'collectorId'
+					data: 'collectorId',
+                        render: function (data, type, row) {
+                            return '<a type="button" id=\''+data+'\' class="btn btn-info btnDetails">'+data+'</button>'
+                        }
 				},
 				{
 					data: 'timestamp',
@@ -143,218 +136,6 @@
 				}
 			]
 		});
-
-		if (window.percentageChartInit === true) {
-			CreatePercentageChart(response)
-			window.percentageChartInit = false
-		}
-
-		if (window.celsiusChartInit === true) {
-			CreateCelsiusChart(response)
-			window.celsiusChartInit = false
-		}
-
-		UpdatePercentageChartData(window.percentageChart, response)
-		UpdateCelsiusChartData(window.celsiusChart, response)
-	};
-
-	function CreatePercentageChart(incomingData) {
-		// Draw the chart
-		window.percentageChart = new Chart(document.getElementById("percentage-line-chart"), {
-			type: 'line',
-			data: {
-				labels: GetTimestampsAsDates(incomingData.map(a => a.timestamp)),
-				datasets: [{
-					data: incomingData.map(a => a.soilMoisture[0]),
-					label: "Soil Moisture [0]",
-					borderColor: "#3e95cd",
-					backgroundColor: "#3e95cd",
-					borderWidth: 4,
-					fill: false,
-					tension: 0.5
-				}, {
-					data: incomingData.map(a => a.soilMoisture[1]),
-					label: "Soil Moisture [1]",
-					borderColor: "#8e5ea2",
-					backgroundColor: "#8e5ea2",
-					borderWidth: 4,
-					fill: false,
-					tension: 0.5
-				}, {
-					data: incomingData.map(a => a.airHumidity),
-					label: "Air Humidity",
-					borderColor: "#e8c3b9",
-					backgroundColor: "#e8c3b9",
-					borderWidth: 4,
-					fill: false,
-					tension: 0.5
-				}, {
-					data: incomingData.map(a => a.lightIntensity),
-					label: "Light Intensity",
-					borderColor: "#c45850",
-					backgroundColor: "#c45850",
-					borderWidth: 4,
-					fill: false,
-					tension: 0.5
-				}]
-			},
-			options: {
-				title: {
-					display: true,
-					text: 'Collected data in Percentage'
-				},
-				animation: {
-					animation: false
-				},
-				plugins: {
-					legend: {
-						position: 'bottom',
-						labels: {
-							usePointStyle: true,
-							pointStyle: 'circle',
-							font: {
-								size: 15,
-								weight: 'bold'
-							}
-						}
-					},
-					tooltip: {
-						bodyFont: {
-							size: 15
-						}
-					}
-				},
-				elements: {
-                    point: {
-                        radius: 0
-                    }
-                },
-				scales: {
-					x: {
-						ticks: {
-							autoSkip: true,
-							maxTicksLimit: 5.1,
-							maxRotation: 0,
-							minRotation: 0,
-							font: {
-								size: 12,
-								weight: 'bold'
-							}
-						},
-						grid: {
-							display: false
-						}
-					},
-					y: {
-						min: 0,
-						max: 100,
-						ticks: {
-							min: 0,
-							max: 100,
-							callback: function(value) {
-								return (value).toFixed(0) + '%';
-							},
-							font: {
-								size: 12,
-								weight: 'bold'
-							}
-						},
-						scaleLabel: {
-							display: true,
-							labelString: 'Percentage',
-						}
-					}
-				}
-			}
-		});
-	}
-
-	function CreateCelsiusChart(incomingData) {
-		// Draw the chart
-		window.celsiusChart = new Chart(document.getElementById("celsius-line-chart"), {
-			type: 'line',
-			data: {
-				labels: GetTimestampsAsDates(incomingData.map(a => a.timestamp)),
-				datasets: [{
-					data: incomingData.map(a => a.airTemperature),
-					label: "Air Temperature",
-					borderColor: "#3cba9f",
-					backgroundColor: "#3cba9f",
-					borderWidth: 4,
-					fill: false,
-					tension: 0.5
-				}]
-			},
-			options: {
-				title: {
-					display: true,
-					text: 'Air Temperature in Celsius'
-				},
-				animation: {
-					animation: false
-				},
-				plugins: {
-					legend: {
-						position: 'bottom',
-						labels: {
-							usePointStyle: true,
-							pointStyle: 'circle',
-							font: {
-								size: 15,
-								weight: 'bold'
-							}
-						}
-					},
-					tooltip: {
-						bodyFont: {
-							size: 15
-						}
-					}
-				},
-				elements: {
-                    point: {
-                        radius: 0
-                    }
-                },
-				scales: {
-					x: {
-						ticks: {
-							autoSkip: true,
-							maxTicksLimit: 5.1,
-							maxRotation: 0,
-							minRotation: 0,
-							font: {
-								size: 12,
-								weight: 'bold'
-							}
-						},
-						grid: {
-							display: false
-						}
-					},
-					y: {
-						min: 0,
-						max: 30,
-						ticks: {
-							callback: function(value) {
-								return (value).toFixed(0) + '°C';
-							},
-							font: {
-								size: 12,
-								weight: 'bold'
-							}
-						},
-						scaleLabel: {
-							display: true
-						},
-						font: {
-							size: 15,
-							weight: 5
-						}
-					}
-				}
-			}
-		});
 	}
 
 	function GetTimestampsAsDates(timestamps) {
@@ -363,47 +144,6 @@
 			dates.push(moment.unix(timestamp).format("DD/MM/YYYY, HH:mm:ss"))
 		})
 		return dates
-	}
-
-	function UpdatePercentageChartData(chart, data) {
-		// Clear labels
-		chart.data.labels = []
-
-		// Update labels with the newest dates
-		chart.data.labels = GetTimestampsAsDates(data.map(a => a.timestamp))
-
-		// Clear datasets
-		chart.data.datasets.forEach((dataset) => {
-			dataset.data = []
-		});
-
-		// Update labels with the newest dates
-		chart.data.datasets[0].data = data.map(a => a.soilMoisture[0])
-		chart.data.datasets[1].data = data.map(a => a.soilMoisture[1])
-		chart.data.datasets[2].data = data.map(a => a.airHumidity)
-		chart.data.datasets[3].data = data.map(a => a.lightIntensity)
-
-		// Commit
-		chart.update();
-	}
-
-	function UpdateCelsiusChartData(chart, data) {
-		// Clear labels
-		chart.data.labels = []
-
-		// Update labels with the newest dates
-		chart.data.labels = GetTimestampsAsDates(data.map(a => a.timestamp))
-
-		// Clear datasets
-		chart.data.datasets.forEach((dataset) => {
-			dataset.data = []
-		});
-
-		// Update labels with the newest dates
-		chart.data.datasets[0].data = data.map(a => a.airTemperature)
-
-		// Commit
-		chart.update();
 	}
 
 	function CreateFilter() {
