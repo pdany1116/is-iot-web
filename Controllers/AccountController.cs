@@ -39,7 +39,7 @@ namespace IsIoTWeb.Controllers
                         return Redirect("/");
                     }
                 }
-                ModelState.AddModelError(nameof(username), "Login Failed: Invalid Email or Password");
+                ModelState.AddModelError(nameof(username), "Invalid Email or Password");
             }
 
             return View();
