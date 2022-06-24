@@ -1,4 +1,7 @@
 ﻿@model IsIoTWeb.Models.ReadingFilter
+
+<div id="errorMessages"></div>
+
 <div id="filterDiv">  
     <div id="periodDateFilterDiv">
         <label>From</label>
@@ -65,6 +68,10 @@
 	}
 
 	function OnSuccess(response) {
+        if (response.errorMessages) {
+            DisplayErrors(response.errorMessages)
+        }
+
 		if (window.percentageChartInit === true) {
 			CreatePercentageChart(response)
 			window.percentageChartInit = false
@@ -326,6 +333,12 @@
 		// Commit
 		chart.update();
 	}
+	
+	function DisplayErrors(errorMessages) {
+	    const div = document.getElementById('errorMessages');
+        div.innerHTML = "" ;
+        errorMessages.forEach(message => div.innerHTML += '<p>' + message + '</p>');
+    }
 	
 	$(function() {
 		$('#filterDiv').change(function() {

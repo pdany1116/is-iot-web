@@ -26,7 +26,14 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         public ActionResult GetReadingsByFilter([FromBody] ReadingFilter? filter)
         {
-            return Json(_readingRepository.GetAllByFilter(filter).Result.ToList());
+            try
+            {
+                return Json(_readingRepository.GetAllByFilter(filter).Result.ToList());
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "An error occured when fetching collectors' data!" } });
+            }
         }
 
         [HttpGet]

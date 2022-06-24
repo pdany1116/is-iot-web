@@ -2,6 +2,9 @@
 @{
     ViewData["Title"] = "Index";
 }
+
+<div id="errorMessages"></div>
+
 <div>
     <label>Enable Filters</label>
     <input type="checkbox" id="filterCheckbox" name="Filter" />
@@ -79,6 +82,10 @@
 	};
 
 	function OnSuccess(response) {
+        if (response.errorMessages) {
+            DisplayErrors(response.errorMessages)
+        }
+
 		$("#tableReadings").DataTable({
 			destroy: true,
 			bLengthChange: true,
@@ -167,6 +174,12 @@
 
 		return filter
 	}
+	
+	function DisplayErrors(errorMessages) {
+	    const div = document.getElementById('errorMessages');
+        div.innerHTML = "" ;
+        errorMessages.forEach(message => div.innerHTML += '<p>' + message + '</p>');
+    }
 
 	$(function() {
 		$('#filterDiv').change(function() {

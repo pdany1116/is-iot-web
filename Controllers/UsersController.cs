@@ -2,6 +2,8 @@
 using IsIoTWeb.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,28 +19,43 @@ namespace IsIoTWeb.Controllers
             _userRepository = userRepository;
         }
 
-        public IActionResult Index()
-        {
-            var result = _userRepository.GetAll().Result;
-            return View(result);
-        }
-
-        public ActionResult GetUsers()
-        {
-            var list = _userRepository.GetAll().Result.ToList();
-            return Json(list);
-        }
+        public IActionResult Index() => View();
 
         public ViewResult Create() => View();
 
         public ViewResult Details() => View();
+
+        public ViewResult Edit() => View();
+
+        public ActionResult GetUsers()
+        {
+            List<User> users = new List<User>();
+            try
+            {
+                users = (List<User>)_userRepository.GetAll().Result;
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "An error occured when fetching Users' data!" } });
+            }
+            return Json(users);
+        }
 
         [HttpPost]
         public async Task<IActionResult> Create(UserInputModel user)
         {
             if (ModelState.IsValid)
             {
-                var errors = await _userRepository.Create(user);
+                List<string> errors = new List<string>();
+                try
+                {
+                    errors = await _userRepository.Create(user);
+                }
+                catch (Exception)
+                {
+                    return RedirectToAction("Index");
+                }
+
                 if (errors != null)
                 {
                     foreach (string error in errors)
@@ -52,8 +69,6 @@ namespace IsIoTWeb.Controllers
             return RedirectToAction("Index");
         }
 
-        public ViewResult Edit() => View();
-
         [HttpPost]
         public IActionResult GetId([FromBody] UserDynamicId id)
         {
@@ -63,27 +78,52 @@ namespace IsIoTWeb.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
-            var user = await _userRepository.Get(id);
+            User user;
             UserInputModel userInputModel = new UserInputModel();
-            userInputModel.FirstName = user.FirstName;
-            userInputModel.LastName = user.LastName;
-            userInputModel.Email = user.Email;
-            userInputModel.PhoneNumber = user.PhoneNumber;
-            userInputModel.Username = user.UserName;
+            try
+            {
+                user = await _userRepository.Get(id);
+                userInputModel.FirstName = user.FirstName;
+                userInputModel.LastName = user.LastName;
+                userInputModel.Email = user.Email;
+                userInputModel.PhoneNumber = user.PhoneNumber;
+                userInputModel.Username = user.UserName;
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("Index");
+            }
+
             return View(userInputModel);
         }
 
         [HttpGet]
         public async Task<IActionResult> Details(string id)
         {
-            var user = await _userRepository.Get(id);
+            User user;
+            try
+            {
+                user = await _userRepository.Get(id);
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("Index");
+            }
+
             return View(user);
         }
 
         [HttpGet]
         public async Task<IActionResult> Delete(string id)
         {
-            await _userRepository.Delete(id);
+            try
+            {
+                await _userRepository.Delete(id);
+            }
+            catch (Exception)
+            {
+                /* Do nothing. Return to index. */
+            }
             return RedirectToAction("Index");
         }
 
@@ -92,7 +132,15 @@ namespace IsIoTWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                var errors = await _userRepository.Update(userInputModel);
+                List<string> errors = new List<string>();
+                try
+                {
+                    errors = await _userRepository.Update(userInputModel);
+                }
+                catch (Exception)
+                {
+                    return RedirectToAction("Index");
+                }
 
                 if (errors == null)
                 {

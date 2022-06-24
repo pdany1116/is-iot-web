@@ -44,12 +44,36 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         public async Task<ActionResult> GetValveLogsByFilter([FromBody] ValveLogsFilter? filter)
         {
-            await _mqttClient.Connect();
-            List<ValveLog> valvesLogs = _valveRepository.GetAllByFilter(filter).Result.ToList();
+            try
+            {
+                await _mqttClient.Connect();
+            }
+            catch(Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "MQTT Broker is not available!" } });
+            }
+
+            List<ValveLog> valvesLogs;
+            try
+            {
+                valvesLogs = _valveRepository.GetAllByFilter(filter).Result.ToList();
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "An error occured when fetching Valves' data!" } });
+            }
+
+            List<User> users;
+            try
+            {
+                users = (List<User>)await _userRepository.GetAll();
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "An error occured when fetching Users' data!" } });
+            }
 
             List<ValveLogDisplay> valvesLogsDisplay = new List<ValveLogDisplay>();
-            var users = await _userRepository.GetAll();
-
             foreach (var valveLog in valvesLogs)
             {
                 ValveLogDisplay valveLogDisplay = new ValveLogDisplay();
@@ -81,9 +105,25 @@ namespace IsIoTWeb.Controllers
 
         public async Task<IActionResult> Manual()
         {
-            await _mqttClient.Connect();
-            RequestStatus();
-            await _mqttClient.Subscribe("/valves/status/response/");
+            try
+            {
+                await _mqttClient.Connect();
+            }
+            catch (Exception)
+            {
+                return View(new Error() { ErrorMessages = { "MQTT Broker is not available!" } });
+            }
+
+            try
+            {
+                RequestStatus();
+                await _mqttClient.Subscribe("/valves/status/response/");
+            }
+            catch (Exception)
+            {
+                return View(new Error() { ErrorMessages = { "An error occured when fetching Valves' status!" } });
+            }
+
             return View();
         }
 
@@ -140,7 +180,14 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         public async Task<ActionResult> Action([FromBody] ValveActionInput valveActionInput)
         {
-            await _mqttClient.Connect();
+            try
+            {
+                await _mqttClient.Connect();
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "MQTT Broker is not available!" } });
+            }
 
             var valveState = GetLastValvesState().Where(x => x.ValveId == valveActionInput.ValveId).FirstOrDefault();
             if (valveState == null)
@@ -148,16 +195,39 @@ namespace IsIoTWeb.Controllers
                 return StatusCode((int)HttpStatusCode.BadRequest, $"Valve [{valveActionInput.ValveId}] does not exist.");
             }
 
-            ValveAction valveAction = new ValveAction(valveActionInput.ValveId,
-                    valveActionInput.Action,
-                    _userRepository.GetLoggedUserByUsername(User.Identity.Name).Result.Id.ToString()
-                    );
-
-            await _mqttClient.Publish($"/valves/control/", JsonConvert.SerializeObject(valveAction, new JsonSerializerSettings
+            ValveAction valveAction;
+            try
             {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            }));
-            RequestStatus();
+                valveAction = new ValveAction(valveActionInput.ValveId,
+                        valveActionInput.Action,
+                        _userRepository.GetLoggedUserByUsername(User.Identity.Name).Result.Id.ToString()
+                        );
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "Failed to fetch logged user. Please reauthenticate!" } });
+            }
+
+            try
+            {
+                await _mqttClient.Publish($"/valves/control/", JsonConvert.SerializeObject(valveAction, new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                }));
+            }
+            catch (Exception)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, $"Sending valve action request failed!");
+            }
+
+            try
+            {
+                RequestStatus();
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "An error occured when fetching Valves' status!" } });
+            }
 
             if ((valveState.State == "ON" && valveActionInput.Action == "TURN_OFF") || (valveState.State == "OFF" && valveActionInput.Action == "TURN_ON"))
             {
@@ -180,18 +250,41 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         public async Task<ActionResult> TurnAllOff()
         {
-            await _mqttClient.Connect();
+            try
+            {
+                await _mqttClient.Connect();
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "MQTT Broker is not available!" } });
+            }
+
             List<ValveState> valvesStates = GetLastValvesState();
             foreach (var valve in valvesStates)
             {
-                ValveAction action = new ValveAction(valve.ValveId,
-                    "TURN_OFF",
-                    _userRepository.GetLoggedUserByUsername(User.Identity.Name).Result.Id.ToString());
-
-                await _mqttClient.Publish($"/valves/control/", JsonConvert.SerializeObject(action, new JsonSerializerSettings
+                ValveAction valveAction;
+                try
                 {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                }));
+                    valveAction = new ValveAction(valve.ValveId,
+                        "TURN_OFF",
+                        _userRepository.GetLoggedUserByUsername(User.Identity.Name).Result.Id.ToString());
+                }
+                catch (Exception)
+                {
+                    return Json(new Error() { ErrorMessages = { "Failed to fetch logged user. Please reauthenticate!" } });
+                }
+
+                try
+                {
+                    await _mqttClient.Publish($"/valves/control/", JsonConvert.SerializeObject(valveAction, new JsonSerializerSettings
+                    {
+                        ContractResolver = new CamelCasePropertyNamesContractResolver()
+                    }));
+                }
+                catch (Exception)
+                {
+                    return StatusCode((int)HttpStatusCode.BadRequest, $"Sending valve action request failed!");
+                }
             }
             RequestStatus();
             return StatusCode((int)HttpStatusCode.OK);
@@ -200,8 +293,29 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         public JsonResult GetValvesState()
         {
-            RequestStatus();
+            try
+            {
+                RequestStatus();
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "An error occured when fetching Valves' status!" } });
+            }
+
             return Json(GetLastValvesState());
+        }
+
+        [HttpPost]
+        public ActionResult GetIrrigationLogsByFilter([FromBody] IrrigationLogsFilter? filter)
+        {
+            try
+            {
+                return Json(_irrigationRepository.GetAllByFilter(filter).Result.ToList());
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "An error occured when fetching irrigation logs!" } });
+            }
         }
 
         private List<ValveState> GetLastValvesState()
@@ -217,13 +331,14 @@ namespace IsIoTWeb.Controllers
 
         private async void RequestStatus()
         {
-            await _mqttClient.Publish($"/valves/status/request/", "{}");
-        }
-
-        [HttpPost]
-        public ActionResult GetIrrigationLogsByFilter([FromBody] IrrigationLogsFilter? filter)
-        {
-            return Json(_irrigationRepository.GetAllByFilter(filter).Result.ToList());
+            try
+            {
+                await _mqttClient.Publish($"/valves/status/request/", "{}");
+            }
+            catch (Exception)
+            {
+                throw new Exception("Failed to request valves status!");
+            }
         }
     }
 }

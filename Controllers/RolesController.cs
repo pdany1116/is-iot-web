@@ -1,6 +1,9 @@
-﻿using IsIoTWeb.Repository;
+﻿using IsIoTWeb.Models;
+using IsIoTWeb.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
@@ -18,8 +21,16 @@ namespace IsIoTWeb.Controllers
 
         public IActionResult Index()
         {
-            var result = _roleRepository.GetAll().Result;
-            return View(result);
+            List<Role> roles = new List<Role>();
+            try
+            {
+                roles = (List<Role>)_roleRepository.GetAll().Result;
+            }
+            catch (Exception)
+            {
+                /* Do nothing. Return empty list of roles. */
+            }
+            return View(roles);
         }
 
         public IActionResult Create() => View();
@@ -29,7 +40,16 @@ namespace IsIoTWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                var errors = await _roleRepository.Create(name);
+                List<string> errors = new List<string>();
+                try
+                {
+                    errors = await _roleRepository.Create(name);
+                }
+                catch (Exception)
+                {
+                    return RedirectToAction("Index");
+                }
+
                 if (errors == null)
                 {
                     ViewBag.Message = "Role Created Successfully";

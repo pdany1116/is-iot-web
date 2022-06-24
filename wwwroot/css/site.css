@@ -131,3 +131,9 @@ body {
     font-size: 1vw;
     text-shadow: 0 0 10px black;
 }
+
+#errorMessages {
+    color: red;
+    text-shadow: 0 0 2px black;
+    text-align: center;
+}

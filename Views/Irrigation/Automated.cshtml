@@ -4,6 +4,7 @@
 
 <h4>Automated Irrigation</h4>
 
+<div id="errorMessages"></div>
 <article class="widget">
   <div class="weatherIcon"><i class="wi wi-day-cloudy"></i></div>
   <div class="weatherInfo">
@@ -20,6 +21,7 @@
 
 <br />
 
+<p id="totalIrrigTime"></p>
 <div>
     <label>Enable Filters</label>
     <input type="checkbox" id="filterCheckbox" name="Filter" />
@@ -28,9 +30,9 @@
 <div id="filterDiv">
     <div id="periodDateFilterDiv">
         <label>From</label>
-        <input type="date" id="fromDateFilter"  class="input"/>
+        <input type="datetime-local" id="fromDateFilter"  class="input"/>
         <label>To</label>
-        <input type="date" id="toDateFilter"  class="input"/>
+        <input type="datetime-local" id="toDateFilter"  class="input"/>
     </div>
 </div>
 
@@ -89,6 +91,10 @@
 	};
 
 	function OnSuccess(response) {
+		if (response.errorMessages) {
+			DisplayErrors(response.errorMessages)
+		}
+
 		$("#tableIrrigation").DataTable({
 			destroy: true,
 			bLengthChange: true,
@@ -211,7 +217,7 @@
 					x: {
 						ticks: {
 							autoSkip: true,
-							maxTicksLimit: 2.1,
+							maxTicksLimit: 3.1,
 							maxRotation: 0,
 							minRotation: 0,
 							font: {
@@ -255,12 +261,23 @@
 				if (irrigation.completed == false)  {
 					colors.push("#ff0000")
 				}
+				else {
+					colors.push("#3cba9f")
+				}
 			}
 			else {
 				colors.push("#3cba9f")
 			}
 		})
 		return colors
+	}
+
+	function GetTotalIrrigationTime(irrigations) {
+		let total = 0
+		irrigations.forEach((irrigation) => {
+			total = total + irrigation.irrigationTime
+		})
+		return total
 	}
 
 	function GetTimestampsAsDates(timestamps) {
@@ -319,6 +336,12 @@
         document.querySelector('#rain').innerHTML = `Precipitation: ${response.rainProbability}%`;
         document.querySelector('#condition').innerHTML = `${response.condition}`;
         document.querySelector('#date').innerHTML = `${response.date}`;
+    }
+
+	function DisplayErrors(errorMessages) {
+	    const div = document.getElementById('errorMessages');
+        div.innerHTML = "" ;
+        errorMessages.forEach(message => div.innerHTML += '<p>' + message + '</p>');
     }
 
 	$(function() {

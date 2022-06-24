@@ -4,6 +4,8 @@
     ViewData["Title"] = "Index";
 }
 
+<div id="errorMessages"></div>
+
 <p>
     <a asp-action="Create" class="btn btn-primary">New User</a>
 </p>
@@ -73,7 +75,11 @@
             });
         })
 
-        function OnSuccess(response) {
+        function OnSuccess(response) {            
+            if (response.errorMessages) {
+                DisplayErrors(response.errorMessages)
+            }
+
             $("#tableUsers").DataTable({
                 destroy: true,
                 bLengthChange: true,
@@ -109,5 +115,11 @@
                 ]
             });
         };
+
+        function DisplayErrors(errorMessages) {
+	        const div = document.getElementById('errorMessages');
+            div.innerHTML = "" ;
+            errorMessages.forEach(message => div.innerHTML += '<p>' + message + '</p>');
+        }
 </script>
 }

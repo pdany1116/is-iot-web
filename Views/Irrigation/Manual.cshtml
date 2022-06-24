@@ -1,10 +1,20 @@
-﻿@model IEnumerable<IsIoTWeb.Models.ValveState>
+﻿@model IsIoTWeb.Models.Error
 
 @{
     ViewData["Title"] = "Control";
 }
 
 <h3>Irrigation Manual Control</h3>
+
+<div id="errorMessages">
+    @if(Model != null)
+    {
+        @foreach(var message in Model.ErrorMessages)
+        {
+            <p>@message</p>
+        }
+    }
+</div>
 
 <div class="text-right">
     <button type="button" class="btn btn-primary btnTurnAllOff">Turn All Valves Off</button>
@@ -114,7 +124,11 @@
             data: action,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function(response) {},
+            success: function(response) {
+                if (response.errorMessages) {
+	                DisplayErrors(response.errorMessages)
+                }
+            },
             failure: function(jqXHR, textStatus, errorThrown) {
                 alert(jqXHR.responseText);
             },
@@ -136,7 +150,11 @@
             data: action,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function(response) {},
+            success: function(response) {
+                if (response.errorMessages) {
+	                DisplayErrors(response.errorMessages)
+                }
+            },
             failure: function(jqXHR, textStatus, errorThrown) {
                 alert(jqXHR.responseText);
             },
@@ -156,7 +174,11 @@
             data: {},
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function(response) {},
+            success: function(response) {
+                if (response.errorMessages) {
+	                DisplayErrors(response.errorMessages)
+                }
+            },
             failure: function(jqXHR, textStatus, errorThrown) {
                 alert(jqXHR.responseText);
             },
@@ -170,6 +192,10 @@
     })
 
     function OnSuccess(response) {
+        if (response.errorMessages) {
+	        DisplayErrors(response.errorMessages)
+        }
+
         $("#tableValves").DataTable({
             destroy: true,
             bFilter: false,
@@ -258,6 +284,12 @@
         for(var i=0; i<current_time_durations.length; i++){
             current_time_durations[i].parentNode.remove()
         }
+    }
+
+    function DisplayErrors(errorMessages) {
+	    const div = document.getElementById('errorMessages');
+        div.innerHTML = "" ;
+        errorMessages.forEach(message => div.innerHTML += '<p>' + message + '</p>');
     }
 
     document.querySelector('#push').onclick = function(){
