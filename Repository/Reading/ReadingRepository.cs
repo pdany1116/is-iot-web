@@ -57,11 +57,11 @@ namespace IsIoTWeb.Repository
             List<Reading> data = new List<Reading>();
             if (pageSize == -1)
             {
-                data = await _dbSet.Find(mongoFilter).Sort(descending).ToListAsync();
+                data = await _collection.Find(mongoFilter).Sort(descending).ToListAsync();
             }
             else
             {
-                data = await _dbSet.Find(mongoFilter).Sort(descending).Limit(pageSize).ToListAsync();
+                data = await _collection.Find(mongoFilter).Sort(descending).Limit(pageSize).ToListAsync();
             }
 
             data.Reverse();
