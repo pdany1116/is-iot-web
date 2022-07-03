@@ -1,5 +1,6 @@
 ﻿using IsIoTWeb.Models;
 using IsIoTWeb.Models.Irrigation;
+using IsIoTWeb.Models.Schedule;
 using IsIoTWeb.Models.Valve;
 using IsIoTWeb.Mqtt;
 using IsIoTWeb.Repository;
@@ -23,17 +24,24 @@ namespace IsIoTWeb.Controllers
     {
         private IValveRepository _valveRepository;
         private IUserRepository _userRepository;
+        private IIrrigationRepository _irrigationRepository;
+        private IScheduleRepository _scheduleRepository;
         private IMqttClient _mqttClient;
         private IConfiguration _configuration;
-        private IIrrigationRepository _irrigationRepository;
 
-        public IrrigationController(IValveRepository valveRepository, IUserRepository userRepository, IMqttClient mqttClient, IConfiguration configuration, IIrrigationRepository irrigationRepository)
+        public IrrigationController(IValveRepository valveRepository, 
+            IUserRepository userRepository,
+            IIrrigationRepository irrigationRepository, 
+            IScheduleRepository scheduleRepository,
+            IMqttClient mqttClient,
+            IConfiguration configuration)
         {
             _valveRepository = valveRepository;
             _userRepository = userRepository;
+            _irrigationRepository = irrigationRepository;
+            _scheduleRepository = scheduleRepository;
             _mqttClient = mqttClient;
             _configuration = configuration;
-            _irrigationRepository = irrigationRepository;
         }
 
         public IActionResult Index()
@@ -172,8 +180,45 @@ namespace IsIoTWeb.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddSchedule()
+        public ActionResult AddSchedule([FromBody] ScheduleInput scheduleInput)
         {
+            if (scheduleInput == null)
+            {
+                return Json(new Error() { ErrorMessages = { "The sent Schedule is null!" } });
+            }
+
+            List<Schedule> schedules = new List<Schedule>();
+            var fromDate = DateTime.Parse(scheduleInput.FromDate);
+            var toDate = DateTime.Parse(scheduleInput.ToDate);
+
+            for (DateTime date = fromDate; date <= toDate; date = date.AddDays(1.0))
+            {
+                foreach (ScheduleEntry entry in scheduleInput.Entries)
+                {
+                    Double hours = double.Parse(entry.Time.Substring(0, 2));
+                    Double minutes = double.Parse(entry.Time.Substring(3, 2));
+                    double timestamp = new DateTimeOffset(date.AddHours(hours).AddMinutes(minutes)).ToUnixTimeSeconds();
+
+                    schedules.Add(new Schedule()
+                    {
+                        Timestamp = timestamp,
+                        Duration = entry.Duration
+                    });
+                }
+            }
+            
+            foreach(var schedule in schedules)
+            {
+                try
+                {
+                    _scheduleRepository.Create(schedule);
+                }
+                catch (Exception)
+                {
+                    return Json(new Error() { ErrorMessages = { "An error occured when tried to add the schedule!" } });
+                }
+            }
+            
             return StatusCode((int)HttpStatusCode.OK);
         }
 
@@ -337,7 +382,7 @@ namespace IsIoTWeb.Controllers
             }
             catch (Exception)
             {
-                throw new Exception("Failed to request valves status!");
+                /* Do nothing. */
             }
         }
     }

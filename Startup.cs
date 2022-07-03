@@ -42,6 +42,7 @@ namespace IsIoTWeb
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IValveRepository, ValveRepository>();
             services.AddScoped<IIrrigationRepository, IrrigationRepository>();
+            services.AddScoped<IScheduleRepository, ScheduleRepository>();
             services.AddSingleton<IMqttClient, MqttClient>();
             services.AddControllersWithViews();
         }

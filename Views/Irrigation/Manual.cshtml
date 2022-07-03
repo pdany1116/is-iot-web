@@ -36,45 +36,31 @@
 <hr />
 <h3>Irrigation Schedule</h3>
 
-<div id="filterDiv">
+<div id="scheduleDiv">
     <div>
         <label>One Date</label>
-        <input type="checkbox" id="oneDateFilterCheckbox" name="OneDateFilter" checked />
+        <input type="checkbox" id="oneDateScheduleCheckbox" name="OneDateSchedule" checked />
     </div>
 
-    <div id="oneDateFilterDiv">
+    <div id="oneDateScheduleDiv">
         <label>In</label>
-        <input type="date" class="input" id="oneDateFilter" />
+        <input type="date" class="input" id="oneDateSchedule" />
     </div>
 
-    <div id="periodDateFilterDiv">
+    <div id="periodDateScheduleDiv">
         <label>From</label>
-        <input type="date" class="input" id="fromDateFilter" />
+        <input type="date" class="input" id="fromDateSchedule" />
         <label>To</label>
-        <input type="date" class="input" id="toDateFilter" />
+        <input type="date" class="input" id="toDateSchedule" />
     </div>
 
-    <br />
-
-    <div>
-        <label>Time Interval</label>
-        <input type="checkbox" id="timeIntervalFilterCheckbox" name="TimeIntervalFilter" checked />
-    </div>
-
-    <div id="timeIntervalFilterDiv">
-        <label>From</label>
-        <input type="time" class="input" id="fromTimeFilter" />
-        <label>To</label>
-        <input type="time" class="input" id="toTimeFilter" />
-    </div>
-
-    <div id="timeDurationFilterUpperDiv">
+    <div id="timeDurationScheduleUpperDiv">
         <div id="newTimeDuration">
             <label>At</label>
-            <input type="time" class="input" id="oneTimeFilter" />
+            <input type="time" class="input" id="oneTimeSchedule" />
             <label>Duration</label>
-            <input type="number" class="input" id="durationFilter" />
-            <button id="push">Add</button>
+            <input type="number" class="input" id="durationSchedule" />
+            <button id="pushDuration">Add</button>
         </div>
 
         <div id="timeDurations"></div>
@@ -236,35 +222,33 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $("#oneDateFilterDiv").show();
-        $("#periodDateFilterDiv").hide();
-        $("#timeIntervalFilterDiv").show();
-        $("#timeDurationFilterUpperDiv").hide();
-        $('#oneDateFilterCheckbox').click(function() {
+        $("#oneDateScheduleDiv").show();
+        $("#periodDateScheduleDiv").hide();
+        $("#timeIntervalScheduleDiv").show();
+        $('#oneDateScheduleCheckbox').click(function() {
             if ($(this).is(":checked")) {
-                $("#oneDateFilterDiv").show();
-                $("#periodDateFilterDiv").hide();
+                $("#oneDateScheduleDiv").show();
+                $("#periodDateScheduleDiv").hide();
             } else {
-                $("#oneDateFilterDiv").hide();
-                $("#periodDateFilterDiv").show();
+                $("#oneDateScheduleDiv").hide();
+                $("#periodDateScheduleDiv").show();
             }
         })
-        $('#timeIntervalFilterCheckbox').click(function() {
-            if ($(this).is(":checked")) {
-                $("#timeIntervalFilterDiv").show();
-                $("#timeDurationFilterUpperDiv").hide();
-            } else {
-                $("#timeIntervalFilterDiv").hide();
-                $("#timeDurationFilterUpperDiv").show();
-            }
-        })
+
+        $("#timeDurationScheduleUpperDiv").show();
+
     });
 
     $(document).on("click", ".submit", function () {
+        schedule = CreateSchedule()
+        if (schedule.entries == []) {
+            return
+        }
+
         $.ajax({
             type: "POST",
             url: "/Irrigation/AddSchedule",
-            data: null,
+            data: JSON.stringify(schedule),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(response) {
@@ -279,6 +263,32 @@
         });
     })
 
+    function CreateSchedule() {
+	    var schedule = new Object();
+	    if ($("#oneDateScheduleCheckbox").is(":checked") === true) {
+		    schedule.fromDate = $("#oneDateSchedule").val()
+		    schedule.toDate = $("#oneDateSchedule").val()
+	    }
+	    else {
+		    schedule.fromDate = $("#fromDateSchedule").val()
+		    schedule.toDate = $("#toDateSchedule").val()
+	    }
+	
+	    schedule.entries = []
+	    durationDivs = document.querySelectorAll('#timeDurations > div');
+
+	    for(var i=0; i<durationDivs.length; i++){
+		    text = durationDivs[i].firstElementChild.innerText;
+            groups = text.match("^(\\d\\d:\\d\\d) => (\\d+) minutes$")
+            entry = Object()
+		    entry.time = groups[1]
+            entry.duration = parseInt(groups[2])
+            schedule.entries.push(entry)
+	    }
+
+	    return schedule
+    }
+
     function ClearInputs(id, action) {
         var current_time_durations = document.querySelectorAll(".delete");
         for(var i=0; i<current_time_durations.length; i++){
@@ -292,15 +302,20 @@
         errorMessages.forEach(message => div.innerHTML += '<p>' + message + '</p>');
     }
 
-    document.querySelector('#push').onclick = function(){
-        if(document.querySelector('#oneTimeFilter').value.length == 0 || document.querySelector('#durationFilter').value.length == 0){
+    document.querySelector('#pushDuration').onclick = function(){
+        oneTime = document.querySelector('#oneTimeSchedule').value
+        durationTime = document.querySelector('#durationSchedule').value
+        if(oneTime.length == 0 || durationTime.length == 0){
             alert("Please enter valid irrigation time!")
+        }
+        if(durationTime <= 0) {
+            alert("Irrigation time should be higher than 0!")
         }
         else{
             document.querySelector('#timeDurations').innerHTML += `
                 <div class="timeDuration">
-                    <span>
-                        ${document.querySelector('#oneTimeFilter').value} => ${document.querySelector('#durationFilter').value} minutes 
+                    <span class="timeDurationEntry">
+                        ${document.querySelector('#oneTimeSchedule').value} => ${document.querySelector('#durationSchedule').value} minutes 
                     </span>
                     <button class="delete">
                         \u00D7
