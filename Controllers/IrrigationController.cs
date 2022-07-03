@@ -52,6 +52,11 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         public async Task<ActionResult> GetValveLogsByFilter([FromBody] ValveLogsFilter? filter)
         {
+            if (filter == null)
+            {
+                return Json(new Error() { ErrorMessages = { "Filter is null!" } });
+            }
+
             try
             {
                 await _mqttClient.Connect();
@@ -225,6 +230,11 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         public async Task<ActionResult> Action([FromBody] ValveActionInput valveActionInput)
         {
+            if (valveActionInput == null)
+            {
+                return Json(new Error() { ErrorMessages = { "Valve Action is null!" } });
+            }
+
             try
             {
                 await _mqttClient.Connect();
@@ -353,6 +363,11 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         public ActionResult GetIrrigationLogsByFilter([FromBody] IrrigationLogsFilter? filter)
         {
+            if (filter == null)
+            {
+                return Json(new Error() { ErrorMessages = { "Filter is null!" } });
+            }
+
             try
             {
                 return Json(_irrigationRepository.GetAllByFilter(filter).Result.ToList());

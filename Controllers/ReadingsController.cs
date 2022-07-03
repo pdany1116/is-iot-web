@@ -26,6 +26,11 @@ namespace IsIoTWeb.Controllers
         [HttpPost]
         public ActionResult GetReadingsByFilter([FromBody] ReadingFilter? filter)
         {
+            if (filter == null)
+            {
+                return Json(new Error() { ErrorMessages = { "Filter is null!" } });
+            }
+
             try
             {
                 return Json(_readingRepository.GetAllByFilter(filter).Result.ToList());
