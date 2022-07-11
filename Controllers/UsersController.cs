@@ -51,9 +51,10 @@ namespace IsIoTWeb.Controllers
                 {
                     errors = await _userRepository.Create(user);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    return RedirectToAction("Index");
+                    ModelState.AddModelError("", ex.Message);
+                    return View(user);
                 }
 
                 if (errors != null)
@@ -64,6 +65,10 @@ namespace IsIoTWeb.Controllers
                     }
                     return View(user);
                 }
+            }
+            else
+            {
+                return View(user);
             }
 
             return RedirectToAction("Index");
