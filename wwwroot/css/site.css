@@ -108,6 +108,7 @@ body {
 .img_nursery {
     width: 100%;
     height: auto;
+    border-radius: 5px;
 }
 
 .img_nursery_container {
@@ -137,3 +138,30 @@ body {
     text-shadow: 0 0 2px black;
     text-align: center;
 }
+
+.info-div {
+    justify-content: center;
+    text-align: center;
+    margin: auto;
+}
+
+.info-div div {
+    background-color: #c9e8c9;
+    border-radius: 5px;
+    margin:2px
+}
+
+.iframe-container {
+    position: relative;
+    width: 99.5%;
+    padding-bottom: 56.25%;
+    height: 0;
+}
+
+    .iframe-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
