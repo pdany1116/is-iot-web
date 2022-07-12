@@ -1,0 +1,15 @@
+﻿.form-div {
+    width: 60%;
+    max-width: 80%;
+    justify-content: center;
+    display: flex;
+    margin: auto;
+}
+
+.form-group {
+    width: 300px;
+}
+
+.button-wrapper{
+    text-align:center;
+}
