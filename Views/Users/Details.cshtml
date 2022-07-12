@@ -1,4 +1,4 @@
-﻿@model IsIoTWeb.Models.User
+﻿@model IsIoTWeb.Models.UserPresentation
 
 @{
     ViewData["Title"] = "View";
@@ -13,7 +13,7 @@
             User ID
         </dt>
         <dd class="col-sm-10">
-            @IsIoTWeb.Utils.Utils.DynamicObjectIdToString(Model.Id.Timestamp, Model.Id.Machine, Model.Id.Pid, Model.Id.Increment)
+            @Html.DisplayFor(model => model.Id)
         </dd>
         <dt class="col-sm-2">
             First Name
@@ -37,7 +37,7 @@
             Username
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.UserName)
+            @Html.DisplayFor(model => model.Username)
         </dd>
         <dt class="col-sm-2">
             Email
@@ -51,19 +51,25 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.PhoneNumber)
         </dd>
+        <dt class="col-sm-2">
+            Role
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Role)
+        </dd>
     </dl>
 </div>
 <div>
     <div style="float: left"> 
         @Html.ActionLink("Edit",
             "Edit",
-            new { id = IsIoTWeb.Utils.Utils.DynamicObjectIdToString(Model.Id.Timestamp, Model.Id.Machine, Model.Id.Pid, Model.Id.Increment) },
+            new { id = Model.Id },
             new { @class = "btn btn-info" })
     </div>
     <div style="float: right"> 
         @Html.ActionLink("Delete", 
             "Delete",
-            new { id = IsIoTWeb.Utils.Utils.DynamicObjectIdToString(Model.Id.Timestamp, Model.Id.Machine, Model.Id.Pid, Model.Id.Increment) },
+            new { id = Model.Id },
             new { @class = "btn btn-danger" })
     </div>
 </div>

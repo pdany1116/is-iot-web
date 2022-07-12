@@ -30,6 +30,12 @@ namespace IsIoTWeb.Repository
             }
             return errors;
         }
+
+        public override async Task Delete(string id)
+        {
+            Role role = await _roleManager.FindByIdAsync(id);
+            await _roleManager.DeleteAsync(role);
+        }
     }
 }
 

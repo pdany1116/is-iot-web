@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace IsIoTWeb.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "ADMINISTRATOR")]
     public class RolesController : Controller
     {
         private IRoleRepository _roleRepository;
@@ -62,7 +62,21 @@ namespace IsIoTWeb.Controllers
                     }
                 }
             }
-            return View();
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(string id)
+        {
+            try
+            {
+                await _roleRepository.Delete(id);
+            }
+            catch (Exception)
+            {
+                /* Do nothing. Return to index. */
+            }
+            return RedirectToAction("Index");
         }
     }
 }

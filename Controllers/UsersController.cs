@@ -9,52 +9,94 @@ using System.Threading.Tasks;
 
 namespace IsIoTWeb.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "ADMINISTRATOR")]
     public class UsersController : Controller
     {
         private IUserRepository _userRepository;
+        private IRoleRepository _roleRepository;
 
-        public UsersController(IUserRepository userRepository)
+        public UsersController(IUserRepository userRepository, IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
         }
 
         public IActionResult Index() => View();
 
-        public ViewResult Create() => View();
+        public async Task<ViewResult> Create()
+        {
+            try
+            {
+                List<Role> roleList = (List<Role>)await _roleRepository.GetAll();
+                ViewBag.Roles = roleList;
+            }
+            catch (Exception)
+            {
+                ViewBag.Errors = "An error occured when fetching user's roles data!";
+            }
+            return View();
+        }
 
         public ViewResult Details() => View();
 
-        public ViewResult Edit() => View();
+        public async Task<ViewResult> Edit()
+        {
+            try
+            {
+                List<Role> roleList = (List<Role>)await _roleRepository.GetAll();
+                ViewBag.Roles = roleList;
+            }
+            catch (Exception)
+            {
+                ViewBag.Errors = "An error occured when fetching user's roles data!";
+            }
+            return View();
+        }
 
         public ActionResult GetUsers()
         {
-            List<User> users = new List<User>();
+            List<UserPresentation> userPresentations = new List<UserPresentation>();
             try
             {
-                users = (List<User>)_userRepository.GetAll().Result;
+                List<User> users = (List<User>)_userRepository.GetAll().Result;
+                foreach(var user in users)
+                {
+                    var roleObjectId = user.Roles.FirstOrDefault();
+                    userPresentations.Add( new UserPresentation()
+                    {
+                        Id = Utils.Utils.DynamicObjectIdToString(user.Id.Timestamp, user.Id.Machine, user.Id.Pid, user.Id.Increment),
+                        Username = user.UserName,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email,
+                        CreatedOn = user.CreatedOn.ToString(),
+                        PhoneNumber = user.PhoneNumber,
+                        Role = GetRoleName(Utils.Utils.DynamicObjectIdToString(roleObjectId.Timestamp, roleObjectId.Machine, roleObjectId.Pid, roleObjectId.Increment))
+                    });
+                }
             }
             catch (Exception)
             {
                 return Json(new Error() { ErrorMessages = { "An error occured when fetching Users' data!" } });
             }
-            return Json(users);
+            return Json(userPresentations);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(UserInputModel user)
+        public async Task<IActionResult> Create(UserCreateInput userCreateInput)
         {
             if (ModelState.IsValid)
             {
                 List<string> errors = new List<string>();
                 try
                 {
-                    errors = await _userRepository.Create(user);
+                    errors = await _userRepository.Create(userCreateInput);
+
                 }
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", ex.Message);
-                    return View(user);
+                    return View(userCreateInput);
                 }
 
                 if (errors != null)
@@ -63,12 +105,12 @@ namespace IsIoTWeb.Controllers
                     {
                         ModelState.AddModelError("", error);
                     }
-                    return View(user);
+                    return View(userCreateInput);
                 }
             }
             else
             {
-                return View(user);
+                return View(userCreateInput);
             }
 
             return RedirectToAction("Index");
@@ -84,38 +126,51 @@ namespace IsIoTWeb.Controllers
         public async Task<IActionResult> Edit(string id)
         {
             User user;
-            UserInputModel userInputModel = new UserInputModel();
+            UserUpdateInput userUpdateInput = new UserUpdateInput();
             try
             {
                 user = await _userRepository.Get(id);
-                userInputModel.FirstName = user.FirstName;
-                userInputModel.LastName = user.LastName;
-                userInputModel.Email = user.Email;
-                userInputModel.PhoneNumber = user.PhoneNumber;
-                userInputModel.Username = user.UserName;
+                userUpdateInput.FirstName = user.FirstName;
+                userUpdateInput.LastName = user.LastName;
+                userUpdateInput.Email = user.Email;
+                userUpdateInput.PhoneNumber = user.PhoneNumber;
+                userUpdateInput.Username = user.UserName;
             }
             catch (Exception)
             {
                 return RedirectToAction("Index");
             }
 
-            return View(userInputModel);
+            return View(userUpdateInput);
         }
 
         [HttpGet]
         public async Task<IActionResult> Details(string id)
         {
             User user;
+            UserPresentation userPresenation;
             try
             {
                 user = await _userRepository.Get(id);
+                var roleObjectId = user.Roles.FirstOrDefault();
+                userPresenation = new UserPresentation()
+                {
+                    Id = Utils.Utils.DynamicObjectIdToString(user.Id.Timestamp, user.Id.Machine, user.Id.Pid, user.Id.Increment),
+                    Username = user.UserName,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    CreatedOn = user.CreatedOn.ToString(),
+                    PhoneNumber = user.PhoneNumber,
+                    Role = GetRoleName(Utils.Utils.DynamicObjectIdToString(roleObjectId.Timestamp, roleObjectId.Machine, roleObjectId.Pid, roleObjectId.Increment))
+                };
             }
             catch (Exception)
             {
                 return RedirectToAction("Index");
             }
 
-            return View(user);
+            return View(userPresenation);
         }
 
         [HttpGet]
@@ -133,14 +188,14 @@ namespace IsIoTWeb.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(UserInputModel userInputModel)
+        public async Task<IActionResult> Edit(UserUpdateInput userUpdateInput)
         {
             if (ModelState.IsValid)
             {
                 List<string> errors = new List<string>();
                 try
                 {
-                    errors = await _userRepository.Update(userInputModel);
+                    errors = await _userRepository.Update(userUpdateInput);
                 }
                 catch (Exception)
                 {
@@ -157,9 +212,19 @@ namespace IsIoTWeb.Controllers
                     {
                         ModelState.AddModelError("", error);
                     }
+                    return View(userUpdateInput);
                 }
             }
-            return View(userInputModel);
+            else
+            {
+                return View(userUpdateInput);
+            }
+            return RedirectToAction("Index");
+        }
+        
+        private string GetRoleName(string id)
+        {
+            return _roleRepository.Get(id).Result.Name;
         }
     }
 }

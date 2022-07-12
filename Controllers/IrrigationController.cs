@@ -19,7 +19,6 @@ using System.Threading.Tasks;
 
 namespace IsIoTWeb.Controllers
 {
-    [Authorize]
     public class IrrigationController : Controller
     {
         private IValveRepository _valveRepository;
@@ -44,11 +43,13 @@ namespace IsIoTWeb.Controllers
             _configuration = configuration;
         }
 
+        [Authorize(Roles = "ADMINISTRATOR")]
         public IActionResult Index()
         {
             return RedirectToAction("Logs");
         }
 
+        [Authorize(Roles = "ADMINISTRATOR")]
         [HttpPost]
         public async Task<ActionResult> GetValveLogsByFilter([FromBody] ValveLogsFilter? filter)
         {
@@ -111,11 +112,13 @@ namespace IsIoTWeb.Controllers
             return Json(valvesLogsDisplay);
         }
 
+        [Authorize(Roles = "ADMINISTRATOR")]
         public IActionResult Logs()
         {
             return View();
         }
 
+        [Authorize(Roles = "ADMINISTRATOR")]
         public async Task<IActionResult> Manual()
         {
             try
@@ -140,6 +143,7 @@ namespace IsIoTWeb.Controllers
             return View();
         }
 
+        [Authorize(Roles = "VIEWER,ADMINISTRATOR")]
         public IActionResult Automated()
         {
             return View();
@@ -179,11 +183,13 @@ namespace IsIoTWeb.Controllers
             return Json(weatherData);
         }
 
+        [Authorize(Roles = "ADMINISTRATOR")]
         public IActionResult Configure()
         {
             return View();
         }
 
+        [Authorize(Roles = "ADMINISTRATOR")]
         [HttpPost]
         public ActionResult AddSchedule([FromBody] ScheduleInput scheduleInput)
         {
@@ -227,6 +233,7 @@ namespace IsIoTWeb.Controllers
             return StatusCode((int)HttpStatusCode.OK);
         }
 
+        [Authorize(Roles = "ADMINISTRATOR")]
         [HttpPost]
         public async Task<ActionResult> Action([FromBody] ValveActionInput valveActionInput)
         {
@@ -302,6 +309,7 @@ namespace IsIoTWeb.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMINISTRATOR")]
         [HttpPost]
         public async Task<ActionResult> TurnAllOff()
         {
@@ -345,6 +353,7 @@ namespace IsIoTWeb.Controllers
             return StatusCode((int)HttpStatusCode.OK);
         }
 
+        [Authorize(Roles = "ADMINISTRATOR")]
         [HttpPost]
         public JsonResult GetValvesState()
         {
@@ -360,6 +369,7 @@ namespace IsIoTWeb.Controllers
             return Json(GetLastValvesState());
         }
 
+        [Authorize(Roles = "VIEWER,ADMINISTRATOR")]
         [HttpPost]
         public ActionResult GetIrrigationLogsByFilter([FromBody] IrrigationLogsFilter? filter)
         {

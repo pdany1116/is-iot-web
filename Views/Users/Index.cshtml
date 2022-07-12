@@ -27,6 +27,9 @@
             <th>
                 Phone Number
             </th>
+            <th>
+                Role
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -38,88 +41,75 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
-        $(document).ready(function() {
-            $.ajax({
-                type: "POST",
-                url: "/Users/GetUsers",
-                data: {},
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: OnSuccess,
-                failure: function(response) {
-                    alert(response.d);
-                },
-                error: function(response) {
-                    alert(response.d);
-                }
-            });
-        });
-
-        $(document).on("click", ".btnDetails", function () {
-            var id = $(this).attr("id");
-            $.ajax({
-                type: "POST",
-                url: "/Users/GetId",
-                data: id,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(response) {
-                    window.location.href = '/Users/Details/' + response.id
-                },
-                failure: function(response) {
-                    alert(response.d);
-                },
-                error: function(response) {
-                    alert(response.d);
-                }
-            });
-        })
-
-        function OnSuccess(response) {            
-            if (response.errorMessages) {
-                DisplayErrors(response.errorMessages)
+    $(document).ready(function() {
+        $.ajax({
+            type: "POST",
+            url: "/Users/GetUsers",
+            data: {},
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: OnSuccess,
+            failure: function(response) {
+                alert(response.d);
+            },
+            error: function(response) {
+                alert(response.d);
             }
+        });
+    });
 
-            $("#tableUsers").DataTable({
-                destroy: true,
-                bLengthChange: true,
-                lengthMenu: [
-                    [10, -1],
-                    [10, "All"]
-                ],
-                bFilter: true,
-                bSort: true,
-                stateSave: true,
-                bPaginate: true,
-                data: response,
-                columns: [
-                    {
-                        data: 'firstName'
-                    },
-                    {
-                        data: 'lastName'
-                    },
-                    {
-                        data: 'email'
-                    },
-                    {
-                        data: 'phoneNumber'
-                    },
-                    {
-                        data: 'id',
-                        render: function (data, type, row) {
-                            data = JSON.stringify(data)
-                            return '<button type="button" id=\''+data+'\' class="btn btn-primary btnDetails">Details</button>'
-                        }
-                    }
-                ]
-            });
-        };
+    $(document).on("click", ".btnDetails", function () {
+        var id = $(this).attr("id");
+        window.location.href = '/Users/Details/' + id;
+    })
 
-        function DisplayErrors(errorMessages) {
-	        const div = document.getElementById('errorMessages');
-            div.innerHTML = "" ;
-            errorMessages.forEach(message => div.innerHTML += '<p>' + message + '</p>');
+    function OnSuccess(response) {
+        if (response.errorMessages) {
+            DisplayErrors(response.errorMessages)
         }
+
+        $("#tableUsers").DataTable({
+            destroy: true,
+            bLengthChange: true,
+            lengthMenu: [
+                [10, -1],
+                [10, "All"]
+            ],
+            bFilter: true,
+            bSort: true,
+            stateSave: true,
+            bPaginate: true,
+            data: response,
+            columns: [
+                {
+                    data: 'firstName'
+                },
+                {
+                    data: 'lastName'
+                },
+                {
+                    data: 'email'
+                },
+                {
+                    data: 'phoneNumber'
+                },
+                {
+                    data: 'role'
+                },
+                {
+                    data: 'id',
+                    render: function (data, type, row) {
+                        return '<button type="button" id=\''+data+'\' class="btn btn-primary btnDetails">Details</button>'
+                    }
+                }
+            ]
+        });
+    };
+
+    function DisplayErrors(errorMessages) {
+        const div = document.getElementById('errorMessages');
+        div.innerHTML = "" ;
+        errorMessages.forEach(message => div.innerHTML += '<p>' + message + '</p>');
+    }
 </script>
 }

@@ -32,7 +32,7 @@ namespace IsIoTWeb.Repository
             return await _userManager.FindByIdAsync(id);
         }
 
-        public async Task<List<string>> Create(UserInputModel userInputModel)
+        public async Task<List<string>> Create(UserCreateInput userInputModel)
         {
             if (userInputModel == null)
             {
@@ -57,11 +57,21 @@ namespace IsIoTWeb.Repository
                 {
                     errors.Add(error.Description);
                 }
+                return errors;
+            }
+
+            result = await _userManager.AddToRoleAsync(appUser, userInputModel.Role);
+            if (!result.Succeeded)
+            {
+                foreach (IdentityError error in result.Errors)
+                {
+                    errors.Add(error.Description);
+                }
             }
             return errors;
         }
 
-        public async Task<List<string>> Update(UserInputModel userInputModel)
+        public async Task<List<string>> Update(UserUpdateInput userInputModel)
         {
             if (userInputModel == null)
             {

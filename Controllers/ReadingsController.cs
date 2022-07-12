@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace IsIoTWeb.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "VIEWER,ADMINISTRATOR")]
     public class ReadingsController : Controller
     {
         private IReadingRepository _readingRepository;

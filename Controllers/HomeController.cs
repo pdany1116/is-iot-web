@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IsIoTWeb.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "VIEWER,ADMINISTRATOR")]
     public class HomeController : Controller
     {
         public HomeController()

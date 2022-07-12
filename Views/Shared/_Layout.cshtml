@@ -17,31 +17,52 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Readings" asp-action="Index">Readings</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Users</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Roles" asp-action="Index">Roles</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" asp-area="" asp-controller="Irrigation" asp-action="Index">
-                                Irrigation
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" asp-area="" asp-controller="Irrigation" asp-action="Logs">Logs</a>
-                                <a class="dropdown-item" asp-area="" asp-controller="Irrigation" asp-action="Manual">Manual</a>
-                                <a class="dropdown-item" asp-area="" asp-controller="Irrigation" asp-action="Automated">Automated</a>
-                                <a class="dropdown-item" asp-area="" asp-controller="Irrigation" asp-action="Configure">Configure</a>
-                            </div>
-                        </li>
-                    </ul>
                     @{
                         if (User?.Identity?.IsAuthenticated ?? false)
                         {
+                            <ul class="navbar-nav flex-grow-1">
+
+                                @{
+                                    if (User?.IsInRole("ADMINISTRATOR") ?? false)
+                                    {
+                                        <li class="nav-item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Readings" asp-action="Index">Readings</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Users</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Roles" asp-action="Index">Roles</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" asp-area="" asp-controller="Irrigation" asp-action="Index">
+                                                Irrigation
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" asp-area="" asp-controller="Irrigation" asp-action="Logs">Logs</a>
+                                                <a class="dropdown-item" asp-area="" asp-controller="Irrigation" asp-action="Manual">Manual</a>
+                                                <a class="dropdown-item" asp-area="" asp-controller="Irrigation" asp-action="Automated">Automated</a>
+                                                <a class="dropdown-item" asp-area="" asp-controller="Irrigation" asp-action="Configure">Configure</a>
+                                            </div>
+                                        </li>
+                                    }
+
+                                    if (User?.IsInRole("VIEWER") ?? false)
+                                    {
+                                        <li class="nav-item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Readings" asp-action="Index">Readings</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" asp-area="" asp-controller="Irrigation" asp-action="Index">
+                                                Irrigation
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" asp-area="" asp-controller="Irrigation" asp-action="Automated">Automated</a>
+                                            </div>
+                                        </li>
+                                    }
+                                }
+                            </ul>
                             //<span class="align-middle mx-auto" style="width: 75px;">Welcome @User.Identity.Name</span>
                             <a asp-controller="Account" asp-action="Logout" class="btn btn-danger">Logout</a>
                         }
