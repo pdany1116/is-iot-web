@@ -33,7 +33,7 @@ or download as ZIP and extract.
 ### Configure application settings
 #### Change default values
 ```
-cp appsettings.json.example appsetings.json
+cp appsettings.example.json appsetings.json
 ```
 `Note: Replace the environment variables with your values. All variables need to be defined!!!`
 
