@@ -35,7 +35,7 @@ or download as ZIP and extract.
 ```
 cp appsettings.example.json appsetings.json
 ```
-`Note: Replace the environment variables with your values. All variables need to be defined!!!`
+`Note: Replace MongoDB, MQTT and AccuWeather settings with your values. All variables need to be defined!!!`
 
 ### Open solution with Visual Studio 2022.
 ### Clean and build solution.
