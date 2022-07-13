@@ -234,4 +234,5 @@ _Pvt_Extensions
 .fake/
 
 # Protect project credentials
-appsettings.*
+appsettings.json
+appsettings.Development.json
