@@ -2,7 +2,7 @@
 
 This repository represents a ASP.NET web application that interactis with an IoT Irrigation System, mainly communicates with the sink module via MQTT and makes CRUD operations on a MongoDB database.
 
-Users are allowed to:
+Users are allowed:
 1. [x] To authenticate with an existing account.
 2. [x] To add/edit/delete users.
 3. [x] To add roles.
