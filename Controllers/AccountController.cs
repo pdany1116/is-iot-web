@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
@@ -30,16 +31,27 @@ namespace IsIoTWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                User appUser = await userManager.FindByNameAsync(username);
-                if (appUser != null)
+                try
                 {
-                    Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(appUser, password, false, false);
-                    if (result.Succeeded)
+                    User appUser = await userManager.FindByNameAsync(username);
+                    if (appUser != null)
                     {
-                        return Redirect("/");
+                        Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(appUser, password, false, false);
+                        if (result.Succeeded)
+                        {
+                            return Redirect("/");
+                        }
                     }
+                    ModelState.AddModelError(nameof(username), "Invalid Email or Password");
                 }
-                ModelState.AddModelError(nameof(username), "Invalid Email or Password");
+                catch (TimeoutException)
+                {
+                    ModelState.AddModelError("Network Timeout", "A timout was encountered when sending the login request. Server might be down or connection is unstable.");
+                }
+                catch(Exception)
+                {
+                    ModelState.AddModelError("Unexpected error", "An unexpected error occured. Please contact the administrator.");
+                }
             }
 
             return View();
@@ -48,7 +60,19 @@ namespace IsIoTWeb.Controllers
         [Authorize]
         public async Task<IActionResult> Logout()
         {
-            await signInManager.SignOutAsync();
+            try
+            {
+                await signInManager.SignOutAsync();
+            }
+            catch (TimeoutException)
+            {
+                ModelState.AddModelError("Network Timeout", "A timout was encountered when sending the logout request. Server might be down or connection is unstable.");
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("Unexpected error", "An unexpected error occured. Please contact the administrator.");
+            }
+
             return RedirectToAction("Index", "Home");
         }
     }
