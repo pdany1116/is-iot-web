@@ -166,7 +166,7 @@ namespace IsIoTWeb.Controllers
             }
             catch (Exception)
             {
-                return Json(new Error() { ErrorMessages = { "An error occured when fetching collectors' data!" } });
+                return Json(new Error() { ErrorMessages = { "An error occured when fetching schedules' data!" } });
             }
         }
 

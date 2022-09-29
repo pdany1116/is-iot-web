@@ -10,6 +10,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 using IsIoTWeb.Utils;
+using System.Linq;
 
 namespace IsIoTWeb.Controllers
 {
@@ -31,7 +32,7 @@ namespace IsIoTWeb.Controllers
 
         [Authorize(Roles = "ADMINISTRATOR")]
         [HttpPost]
-        public async Task<IActionResult> AddCollectorAsync(string id)
+        public async Task<IActionResult> AddCollector(string id)
         {
             try
             {
@@ -45,6 +46,38 @@ namespace IsIoTWeb.Controllers
             }
 
             return StatusCode((int)HttpStatusCode.OK);
+        }
+
+        [Authorize(Roles = "ADMINISTRATOR")]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteCollector(string id)
+        {
+            try
+            {
+                Sink sink = await _sinkRepository.Get(StaticVariables.SinkId);
+                sink.Collectors.Remove(id);
+                await _sinkRepository.Update(sink);
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "Failed to remove collector!" } });
+            }
+            return StatusCode((int)HttpStatusCode.OK);
+        }
+
+        [Authorize(Roles = "ADMINISTRATOR")]
+        [HttpPost]
+        public async Task<ActionResult> GetCollectors()
+        {
+            try
+            {
+                Sink sink = await _sinkRepository.Get(StaticVariables.SinkId);
+                return Json(sink.Collectors.ToList());
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "An error occured when fetching collectors' data!" } });
+            }
         }
     }
 }
