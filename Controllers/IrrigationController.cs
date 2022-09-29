@@ -7,6 +7,7 @@ using IsIoTWeb.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -147,6 +148,43 @@ namespace IsIoTWeb.Controllers
         public IActionResult Automated()
         {
             return View();
+        }
+
+        [Authorize(Roles = "ADMINISTRATOR")]
+        public IActionResult Scheduled()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "ADMINISTRATOR")]
+        [HttpPost]
+        public ActionResult GetSchedules()
+        {
+            try
+            {
+                return Json(_scheduleRepository.GetAll().Result.ToList());
+            }
+            catch (Exception)
+            {
+                return Json(new Error() { ErrorMessages = { "An error occured when fetching collectors' data!" } });
+            }
+        }
+
+        [Authorize(Roles = "ADMINISTRATOR")]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteSchedule(string id)
+        {
+            try
+            {
+                var objectId = new ObjectId(id);
+                await _scheduleRepository.Delete(objectId);
+                
+            }
+            catch (Exception)
+            {
+                /* Do nothing. Return OK. */
+            }
+            return StatusCode((int)HttpStatusCode.OK);
         }
 
         [HttpPost]
