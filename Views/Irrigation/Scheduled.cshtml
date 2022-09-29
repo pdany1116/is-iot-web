@@ -44,12 +44,9 @@
             <th>
                 Duration
             </th>
-<<<<<<< HEAD
             <th>
             </th>
-=======
-            
->>>>>>> c6149df (Created schedule irrigation page)
+
         </tr>
     </thead>
 </table>
@@ -201,10 +198,6 @@
 	};
 
     function OnSuccess(response) {
-<<<<<<< HEAD
-=======
-        console.log(response)
->>>>>>> c6149df (Created schedule irrigation page)
         if (response.errorMessages) {
             DisplayErrors(response.errorMessages)
         }
@@ -237,21 +230,17 @@
 						return data + "min";
 					}
 				},
-<<<<<<< HEAD
                 {
 					data: 'id',
                         render: function (data, type, row) {
                             return '<a onClick="deleteSchedule()" type="button" id=\''+data+'\' class="btn btn-danger deleteSchedule" style="color:#fff !important;">Delete</button>'
                         }
 				}
-=======
->>>>>>> c6149df (Created schedule irrigation page)
-			]
+                			]
 		});
 	}
 
-<<<<<<< HEAD
-    const deleteSchedule = () => {
+        const deleteSchedule = () => {
         const scheduleId = document.querySelector(".deleteSchedule");
 
         $.ajax({
@@ -268,8 +257,6 @@
 		});
     }
 
-=======
->>>>>>> c6149df (Created schedule irrigation page)
     function DisplayErrors(errorMessages) {
 	    const div = document.getElementById('errorMessages');
         div.innerHTML = "" ;
