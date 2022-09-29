@@ -150,13 +150,19 @@ namespace IsIoTWeb.Controllers
             return View();
         }
 
+<<<<<<< HEAD
         [Authorize(Roles = "ADMINISTRATOR")]
+=======
+>>>>>>> c6149df (Created schedule irrigation page)
         public IActionResult Scheduled()
         {
             return View();
         }
 
+<<<<<<< HEAD
         [Authorize(Roles = "ADMINISTRATOR")]
+=======
+>>>>>>> c6149df (Created schedule irrigation page)
         [HttpPost]
         public ActionResult GetSchedules()
         {
@@ -170,6 +176,7 @@ namespace IsIoTWeb.Controllers
             }
         }
 
+<<<<<<< HEAD
         [Authorize(Roles = "ADMINISTRATOR")]
         [HttpDelete]
         public async Task<IActionResult> DeleteSchedule(string id)
@@ -187,6 +194,8 @@ namespace IsIoTWeb.Controllers
             return StatusCode((int)HttpStatusCode.OK);
         }
 
+=======
+>>>>>>> c6149df (Created schedule irrigation page)
         [HttpPost]
         public async Task<JsonResult> WeatherData()
         {
