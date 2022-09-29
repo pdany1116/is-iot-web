@@ -35,7 +35,7 @@ namespace IsIoTWeb.Repository
 
         public virtual async Task Update(TDocument obj)
         {
-            await _collection.ReplaceOneAsync(Builders<TDocument>.Filter.Eq("_id", obj.Id), obj);
+            await _collection.ReplaceOneAsync(Builders<TDocument>.Filter.Eq("_id", new ObjectId(obj.Id)), obj);
         }
 
         public virtual async Task<TDocument> Get(string id)

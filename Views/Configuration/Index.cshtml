@@ -6,8 +6,40 @@
     <legend>Add collector</legend>
 
     <div>
-	    <input type="text" id="rainProbThreshold" class="input"/>
+	    <input type="text" id="addCollectorInput" class="input"/>
     </div>
     <br />
-    <button type="button" class="btn btn-primary">Add</button>
+    <button type="button" class="btn btn-primary" onClick="addCollector()">Add</button>
 </fieldset>
+
+@section Scripts
+{
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+    const addCollector = () => {
+        const collectorId = document.getElementById("addCollectorInput").value;
+
+        $.ajax({
+            type: "POST",
+            url: "/Configuration/AddCollector",
+            data: {id: collectorId},
+            //contentType: "application/json; charset=utf-8",
+            //dataType: "json",
+            success: function(response) {
+                console.log('succ add schedule')
+                //ClearInputs();
+            },
+            failure: function(response) {
+                console.log('fail add schedule')
+                alert(response);
+            },
+            error: function(response) {
+                console.log('error add schedule')
+                //fetchData();
+                //ClearInputs();
+            }
+        });
+    }
+
+</script>
+}
