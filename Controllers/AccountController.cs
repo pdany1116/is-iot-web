@@ -38,12 +38,13 @@ namespace IsIoTWeb.Controllers
                 try
                 {
                     User appUser = await userManager.FindByNameAsync(username);
-                    if (appUser != null)
+                    var sinkId = await _sinkRepository.GetIdByUser(appUser);
+                    if (appUser != null && sinkId != null)
                     {
                         Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(appUser, password, false, false);
+                        StaticVariables.SinkId = sinkId;
                         if (result.Succeeded)
                         {
-                            StaticVariables.SinkId = await _sinkRepository.GetIdByUser(appUser);
                             return Redirect("/");
                         }
                     }
