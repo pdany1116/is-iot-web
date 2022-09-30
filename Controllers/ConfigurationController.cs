@@ -36,9 +36,7 @@ namespace IsIoTWeb.Controllers
         {
             try
             {
-                Sink sink = await _sinkRepository.Get(StaticVariables.SinkId);
-                sink.Collectors.Add(id);
-                await _sinkRepository.Update(sink);
+                await _sinkRepository.AddCollector(id);
             }
             catch (Exception)
             {
@@ -54,9 +52,7 @@ namespace IsIoTWeb.Controllers
         {
             try
             {
-                Sink sink = await _sinkRepository.Get(StaticVariables.SinkId);
-                sink.Collectors.Remove(id);
-                await _sinkRepository.Update(sink);
+                await _sinkRepository.RemoveCollector(id);
             }
             catch (Exception)
             {
@@ -71,7 +67,7 @@ namespace IsIoTWeb.Controllers
         {
             try
             {
-                Sink sink = await _sinkRepository.Get(StaticVariables.SinkId);
+                Sink sink = await _sinkRepository.GetSink();
                 return Json(sink.Collectors.ToList());
             }
             catch (Exception)
