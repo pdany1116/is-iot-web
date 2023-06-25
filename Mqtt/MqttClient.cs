@@ -20,10 +20,15 @@ namespace IsIoTWeb.Mqtt
         {
             _mqttSettings = mqttSettings;
             _mqttClient = new MqttFactory().CreateMqttClient();
-            _mqttClientOptions = new MqttClientOptionsBuilder()
-                .WithTcpServer(_mqttSettings.BrokerHost, _mqttSettings.BrokerPort)
-                .WithCredentials(_mqttSettings.User, _mqttSettings.Password)
-                .Build();
+            var mqttClientOptionsBuilder = new MqttClientOptionsBuilder()
+                .WithTcpServer(_mqttSettings.BrokerHost, _mqttSettings.BrokerPort);
+
+            if (_mqttSettings.WithCredentials)
+            {
+                mqttClientOptionsBuilder.WithCredentials(_mqttSettings.User, _mqttSettings.Password);
+            }
+
+            _mqttClientOptions = mqttClientOptionsBuilder.Build();
         }
 
         public async Task Connect()

@@ -18,26 +18,9 @@ Users are allowed:
 13. [ ] To configure automated irrigation process.
 14. [ ] To configure the sink module.
 
-### System requirements
-1. Windows 10.
-2. Visual Studio 2022 Community with C#.
-2. .NET 5 SDK.
-3. ASP.NET and web development workload (can be installed from Visual Studio Installer).
+## Linux Setup
+1. `git clone https://github.com/pdany1116/is-iot-sink.git`
+1. `cp appsettings.example.json appsettings.json`
+2. `docker compose up`
 
-### Clone repository
-```
-git clone https://github.com/pdany1116/is-iot-sink.git
-```
-or download as ZIP and extract.
-
-### Configure application settings
-#### Change default values
-```
-cp appsettings.example.json appsettings.json
-```
-`Note: Replace MongoDB, MQTT and AccuWeather settings with your values. All variables need to be defined!!!`
-
-### Open solution with Visual Studio 2022.
-### Clean and build solution.
-### Restore nuget packages.
-### Deploy with IIS Express.
+The app is running at: http://localhost:5000
