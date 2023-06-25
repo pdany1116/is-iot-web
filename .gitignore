@@ -236,3 +236,8 @@ _Pvt_Extensions
 # Protect project credentials
 appsettings.json
 appsettings.Development.json
+
+# MongoDB local data volume
+data
+
+.idea

@@ -33,7 +33,7 @@ or download as ZIP and extract.
 ### Configure application settings
 #### Change default values
 ```
-cp appsettings.example.json appsetings.json
+cp appsettings.example.json appsettings.json
 ```
 `Note: Replace MongoDB, MQTT and AccuWeather settings with your values. All variables need to be defined!!!`
 
